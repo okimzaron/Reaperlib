@@ -19,7 +19,7 @@
   --tok-kw: #c4b5fd; --tok-fn: #f4ecdd; --tok-str: #f5d0a9; --tok-num: #f0abfc; --tok-com: #7c6f93;
 
   --radius: 14px;
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'AZN Unified', 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   color-scheme: dark;
@@ -383,3 +383,21 @@ html.r-intro-pending::after { content: ''; position: fixed; inset: 0; z-index: 9
 .team-logo-link .team-logo { width: 100%; margin: 0; }
 .team-logo-link:hover { transform: translateY(-4px) rotate(-1deg); box-shadow: 0 24px 60px -24px rgba(122,79,181,.7); }
 .avatar-img { object-fit: cover; padding: 0; background: #e3cd5e; border: 2px solid var(--accent); }
+
+
+/* =========================================================
+   AZN Unified on every title, nav item, button and label
+   (body copy stays Inter; code stays monospace)
+   ========================================================= */
+h1, h2, h3, h4,
+.r-brand, .r-links a, .r-btn, .kicker, .r-head .kicker, .check-list li,
+.nav-group h4, .nav-group a, .docs-toc h4, .breadcrumbs, .callout b, .api-table th,
+.pager span, .pager b, .docs-menu-btn, .member h3, .member p, .r-footer p, .r-footer a,
+.ri-skip, .steps > li > strong, .copy-btn {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.r-hero h1 { letter-spacing: 0.01em; font-weight: 400; }
+.r-brand small { font-family: var(--font-display); letter-spacing: .04em; }
+.nav-group a { font-size: 14px; }
