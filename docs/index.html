@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reaper Docs · Za'Ron Lee</title>
-  <meta name="description" content="Documentation for Reaper 1.0 beta: a VEX V5 template with MCL, odometry, autonomous selection and custom driver controls.">
+  <meta name="description" content="Documentation for Reaper 1.0 beta: a VEX V5 PROS template with a lift controller, sequences, distance-sensor localization, a touch dashboard and custom driver controls.">
   <meta name="theme-color" content="#0f0a18">
   <link rel="icon" href="../assets/img/reaper-logo.webp" type="image/webp">
   <script>try{var t=localStorage.getItem('reaper-theme');if(t)document.documentElement.setAttribute('data-theme',t);if(!localStorage.getItem('reaper-intro-seen')||/[?&]intro/.test(location.search))document.documentElement.classList.add('r-intro-pending');}catch(e){}</script>
@@ -56,35 +56,46 @@
 
       <div class="nav-group">
         <h4>Getting started</h4>
-        <a href="#introduction" data-keywords="overview about ez">Introduction</a>
-        <a href="#installation" data-keywords="pros install download build upload setup">Installation</a>
-        <a href="#structure" data-keywords="files robot_hardware main lift_settings routes">Project structure</a>
-        <a href="#configure" data-keywords="ports motors imu wheel rpm tracker chassis robot_hardware">Configure your robot</a>
+        <a href="#introduction" data-keywords="overview about ez features beta">Introduction</a>
+        <a href="#installation" data-keywords="download github zip pros install vs code build upload pros mu">Installation</a>
+        <a href="#structure" data-keywords="files folders robot_hardware robot_controls field_map team routes sd card">Project layout</a>
+        <a href="#first-boot" data-keywords="checklist imu calibrate rumble motors page stand">First boot checklist</a>
       </div>
       <div class="nav-group">
-        <h4>Driver control</h4>
-        <a href="#driver-controls" data-keywords="arcade tank curve active brake down b">Drive controls</a>
-        <a href="#lift" data-keywords="lift pid buttons hold return presets lift_settings max_height">Lift</a>
+        <h4>Setup</h4>
+        <a href="#hardware" data-keywords="ports motors imu wheel rpm tracker tracking wheels distance robot_hardware wheel sizes">Hardware configuration</a>
+        <a href="#controls" data-keywords="buttons robot_controls button map arcade tank drive style deadband curve controller screen down b test">Driver controls</a>
+        <a href="#brain-screen" data-keywords="splash dashboard routes motors sensors team logo colors theme lvgl">Brain screen</a>
       </div>
       <div class="nav-group">
         <h4>Autonomous</h4>
-        <a href="#selector" data-keywords="auton selector grid match skills red blue sd card">Route selector</a>
-        <a href="#routes" data-keywords="write route match_routes skills_routes register">Writing a route</a>
-        <a href="#movements" data-keywords="drive turn swing odom boomerang pure pursuit path">Movements</a>
-        <a href="#waits" data-keywords="pid_wait chain quick until checkpoint">Waits &amp; chaining</a>
-        <a href="#pose" data-keywords="odom pose start position reset xyt">Pose &amp; odometry</a>
-        <a href="#tuning" data-keywords="pid constants exit conditions slew default_constants kp kd">Tuning constants</a>
-        <a href="#mechanisms" data-keywords="lift roller intake auton">Mechanisms in auton</a>
+        <a href="#autons" data-keywords="routes match_routes skills_routes register selector auton sd card odom_xyt_set">Writing autons</a>
+        <a href="#motions" data-keywords="drive turn swing point odom pid_wait chain quick until velocity estimate">Motions</a>
+        <a href="#auton-mechanisms" data-keywords="lift claw move_to wait_until_settled sequence auton">Mechanisms in a route</a>
+        <a href="#tuning" data-keywords="pid constants exit conditions slew default_constants kp kd stuck detection">Tuning</a>
+      </div>
+      <div class="nav-group">
+        <h4>Mechanisms</h4>
+        <a href="#lift" data-keywords="lift calibrate max_height presets gravity gain scheduling faults rotation sensor lift_settings">Lift</a>
+        <a href="#pistons" data-keywords="claw piston pneumatics solenoid piston group button_toggle">Claw &amp; pistons</a>
+        <a href="#sequences" data-keywords="sequence steps lift claw pneumatic wait background">Sequences</a>
+        <a href="#roller" data-keywords="roller optical color alliance red blue yellow hue seek maintain">Roller</a>
       </div>
       <div class="nav-group">
         <h4>Localization</h4>
-        <a href="#mcl" data-keywords="mcl particle filter distance sensor field">MCL</a>
-        <a href="#dsr" data-keywords="distance sensor reset wall dsr">Distance sensor reset</a>
+        <a href="#localization" data-keywords="mcl particle filter distance sensor coordinates field walls">Localization</a>
+        <a href="#wall-resets" data-keywords="distance reset wall snap dsr reset result median">Wall resets</a>
+        <a href="#field-map" data-keywords="field_map obstacles circles segments goals barriers margin">Field map</a>
+      </div>
+      <div class="nav-group">
+        <h4>Diagnostics</h4>
+        <a href="#vmp" data-keywords="vmp imu still quiet hit impact tipping lift sway sensors page csv">VMP</a>
+        <a href="#diagnostics" data-keywords="terminal console messages motor monitor imu checks">Terminal &amp; motor monitor</a>
+        <a href="#troubleshooting" data-keywords="problems fixes build errors upload nothing moves lift messages">Troubleshooting</a>
       </div>
       <div class="nav-group">
         <h4>Reference</h4>
-        <a href="#settings" data-keywords="settings setters table api">Settings</a>
-        <a href="#credits" data-keywords="license ez-template rw-template lightlib alex bryan mpl mit help discord">Credits &amp; help</a>
+        <a href="#credits" data-keywords="license credits ez-template rw-template pros lvgl lemlib lightlib alex bryan mpl mit help discord github">Credits &amp; help</a>
       </div>
       <p class="docs-empty">No pages match.</p>
     </aside>
@@ -94,390 +105,386 @@
       <button class="docs-menu-btn" type="button" data-toggle="docs-sidebar" aria-expanded="false">☰ Docs menu</button>
       <p class="breadcrumbs"><a href="../">Reaper</a> / <a href="./">Docs</a> / <span data-crumb>Introduction</span></p>
 
-      <!-- ==================== INTRODUCTION ==================== -->
       <section class="doc-section" id="introduction" data-title="Introduction">
         <h1>Introduction</h1>
-        <p class="lead">Reaper is a PROS template for VEX V5 robots. It's built on
-          <a class="ez-link" href="https://ez-robotics.github.io/EZ-Template/" target="_blank" rel="noopener">EZ-Template</a>,
-          with some features adapted from RW-Template.</p>
-        <h3 id="whats-included">What's included</h3>
-        <ul class="bullets">
-          <li><strong>Drive &amp; odometry:</strong> EZ's drive, odometry, motion exits, redundant-IMU handling and EZ-Units (<code>24_in</code>, <code>90_deg</code>).</li>
-          <li><strong>MCL:</strong> distance-sensor localization against the field walls, kept in sync with odometry.</li>
-          <li><strong>Route selector:</strong> match slots, skills slots, and a red/blue auto toggle.</li>
-          <li><strong>Driver controls:</strong> arcade or tank, joystick curves, active brake, and a Down&nbsp;+&nbsp;B shortcut to test autons without field control.</li>
-          <li><strong>Lift PID:</strong> hold-on-release, one-button return, and autonomous position commands.</li>
-          <li><strong>Extras:</strong> roller color control and VMP vibration monitoring (observe-only).</li>
-        </ul>
-        <div class="callout"><b>Beta</b><p>The source compiles and passes host tests, but every robot is different. Check ports, directions and tuning on your own robot before relying on it in competition.</p></div>
+<p class="lead">Reaper is a VEX V5 code template for PROS. It's built on <a class="ez-link" href="https://ez-robotics.github.io/EZ-Template/" target="_blank" rel="noopener">EZ-Template</a> and adds the things a competition robot needs past the drivetrain: a lift controller, mechanism sequences, distance-sensor localization, a touch-screen dashboard, a controller readout and startup safety checks.</p>
+<h3 id="whats-included">What's included</h3>
+<table class="api-table"><thead><tr><th>Area</th><th>What you get</th></tr></thead><tbody><tr><td>Drivetrain</td><td>Everything EZ-Template 4.0 does: PID drive/turn/swing, odometry, boomerang, pure pursuit, a PID tuner and joystick curves. Exit conditions are reworked to catch a robot that's stuck or pushed.</td></tr><tr><td>Setup</td><td>All ports and sensor positions in one file, <code>robot_hardware.hpp</code>. All driver buttons in another, <code>robot_controls.hpp</code>. Duplicate buttons fail the build.</td></tr><tr><td>Lift</td><td>One background controller with travel limits, named presets, optional rotation sensor, gravity compensation, gain scheduling and fault detection.</td></tr><tr><td>Sequences</td><td>Lift, claw, pneumatic and wait steps that run in order without blocking your code.</td></tr><tr><td>Pneumatics</td><td><code>ez::Piston</code> plus <code>ez::PistonGroup</code> for pistons that fire together.</td></tr><tr><td>Localization</td><td>Up to four distance sensors correct the robot's X/Y position against the field walls.</td></tr><tr><td>Brain screen</td><td>An animated scythe splash during calibration, then a touch dashboard with Home, Routes (15 match + 3 skills slots, red/blue alliance), Motors and Sensors pages.</td></tr><tr><td>Controller</td><td>Live X/Y, heading and lift position on the controller screen.</td></tr><tr><td>Testing</td><td><strong>Down + B</strong> runs the selected auton when no field is connected. Press it again to cancel.</td></tr><tr><td>Diagnostics</td><td>Motor monitor, IMU motion monitor (VMP: still / hit / tip / lift-sway detection) and clear startup messages.</td></tr></tbody></table>
+<div class="callout"><b>Beta</b><p>Reaper 1.0 is still in beta. Test every setting on your own robot before you compete with it. Every port ships set to <code>0</code> (disabled), so nothing moves until you configure it.</p></div>
       </section>
 
-      <!-- ==================== INSTALLATION ==================== -->
       <section class="doc-section" id="installation" data-title="Installation">
         <h2>Installation</h2>
-        <p>Reaper is a <strong>source project</strong>. You open the whole folder in PROS rather than applying a template archive.</p>
-        <ol class="steps">
-          <li><strong>Download Reaper</strong><p>Grab the latest Reaper project folder and unzip it somewhere you'll keep it.</p></li>
-          <li><strong>Open it in PROS</strong><p>In VS Code with the PROS extension, open the <code>Reaper</code> folder (the one containing <code>project.pros</code>).</p></li>
-          <li><strong>Configure your robot</strong><p>Set your ports, wheel size and RPM first. See <a class="ez-link" href="#configure">Configure your robot</a>.</p></li>
-          <li><strong>Build and upload</strong>
-            <pre data-copy><code>pros mu</code></pre></li>
-        </ol>
-        <div class="callout warn"><b>Don't</b><p>Don't install the precompiled EZ-Template archive over this folder. It would bypass Reaper's selector and odometry changes.</p></div>
-        <p>PROS kernel 4.2.2 and liblvgl 9.2.0 are included. Reaper builds as an application (<code>IS_LIBRARY=0</code>).</p>
+<p>Reaper is a full PROS project. You download it, open the folder in VS Code and build it like any other project.</p>
+<div class="r-hero-cta" style="justify-content:flex-start;margin:18px 0 6px"><a class="r-btn r-btn-primary" href="https://github.com/okimzaron/Reaperlib/archive/refs/heads/main.zip">Download ZIP</a><a class="r-btn r-btn-ghost" href="https://github.com/okimzaron/Reaperlib" target="_blank" rel="noopener">View on GitHub</a></div>
+<ol class="steps"><li><strong>Install the tools</strong><p>Install <a class="ez-link" href="https://code.visualstudio.com/" target="_blank" rel="noopener">VS Code</a>, then open Extensions, search for <strong>PROS</strong> and install it. It installs the PROS command line tools and the ARM compiler for you. Restart VS Code once it finishes.</p></li><li><strong>Download Reaper</strong><p>Use <strong>Download ZIP</strong> above (or <strong>Code → Download ZIP</strong> on <a class="ez-link" href="https://github.com/okimzaron/Reaperlib" target="_blank" rel="noopener">GitHub</a>) and unzip it somewhere easy to find, such as <code>Documents/Reaper</code>. Avoid OneDrive or other synced folders: syncing can lock files mid-build.</p></li><li><strong>Open the template folder</strong><p>In VS Code, use <strong>File → Open Folder</strong> and pick the <code>template</code> folder, the one that contains <code>project.pros</code>.</p></li><li><strong>Build</strong><p>Open the PROS sidebar and click <strong>Build</strong>, or run <code>pros make</code> in the PROS terminal. A clean build shows no errors. The first build takes a minute or two.</p></li><li><strong>Set your ports</strong><p>See <a class="ez-link" href="#hardware">Hardware configuration</a>.</p></li><li><strong>Upload</strong><p>Plug the brain or controller in by USB and run <code>pros mu</code> (make and upload). Pick a program slot on the brain if asked.</p></li></ol>
+<pre data-copy><code>pros mu</code></pre>
       </section>
 
-      <!-- ==================== STRUCTURE ==================== -->
-      <section class="doc-section" id="structure" data-title="Project structure">
-        <h2>Project structure</h2>
-        <p>These are the only files you need to touch.</p>
-        <table class="api-table">
-          <thead><tr><th>File</th><th>What goes in it</th></tr></thead>
-          <tbody>
-            <tr><td><code>robot_hardware.hpp</code></td><td>Every port and sensor position: drive, IMUs, trackers, distance sensors and mechanisms</td></tr>
-            <tr><td><code>main.cpp</code></td><td>Driver control, button bindings and localization startup</td></tr>
-            <tr><td><code>lift_settings.hpp</code></td><td>Lift travel limit, presets, PID and gravity compensation</td></tr>
-            <tr><td><code>match_routes.cpp</code></td><td>Your match routes</td></tr>
-            <tr><td><code>skills_routes.cpp</code></td><td>Your skills routes</td></tr>
-          </tbody>
-        </table>
+      <section class="doc-section" id="structure" data-title="Project layout">
+        <h2>Project layout</h2>
+<p>The files you'll actually edit:</p>
+<table class="api-table"><thead><tr><th>Path</th><th>What's in it</th></tr></thead><tbody><tr><td><code>include/robot_hardware.hpp</code></td><td>Your ports and sensor positions</td></tr><tr><td><code>include/robot_controls.hpp</code></td><td>Your controller buttons and drive style</td></tr><tr><td><code>include/field_map.hpp</code></td><td>Field elements that block distance sensors (per game)</td></tr><tr><td><code>include/Reaper-Template/lift_settings.hpp</code></td><td>Lift travel limit, presets, PID and gravity compensation</td></tr><tr><td><code>src/main.cpp</code></td><td><code>initialize()</code>, <code>autonomous()</code> and <code>opcontrol()</code></td></tr><tr><td><code>src/autons.cpp</code></td><td>PID constants and motion defaults</td></tr><tr><td><code>src/routes/</code></td><td>Your match and skills routes</td></tr><tr><td><code>src/team/</code></td><td>Your team name, logo and dashboard colors (4588G example)</td></tr><tr><td><code>sd-card/</code></td><td>Optional SD card files (selected auton, joystick curves)</td></tr></tbody></table>
+<p>Everything else under <code>include/Reaper-Template/</code> and <code>src/Reaper-Template/</code> is the template itself. <code>licenses/</code> holds the licenses for everything Reaper builds on.</p>
       </section>
 
-      <!-- ==================== CONFIGURE ==================== -->
-      <section class="doc-section" id="configure" data-title="Configure your robot">
-        <h2>Configure your robot</h2>
-        <p>Every port and sensor position lives in <code>robot_hardware.hpp</code>, between the <code>SETTINGS</code> and <code>END SETTINGS</code> markers. Edit that section, then rebuild and upload. No port edits anywhere else.</p>
-        <ul class="bullets">
-          <li><strong><code>0</code> means disabled.</strong> The device isn't created.</li>
-          <li><strong>A negative motor port reverses that motor.</strong> Fix direction here, not by negating power in code.</li>
-          <li>Smart ports are 1 to 21. Never use one port for two devices.</li>
-        </ul>
-
-        <h3 id="drive-ports">Drivetrain</h3>
-        <p>Use as many motors per side as your drive has. Wheel RPM is measured <strong>at the wheel</strong>, after gearing (a 600 RPM cartridge geared 36:48 is 450).</p>
-<pre data-copy><code><span class="tok-kw">static inline const</span> std::vector&lt;<span class="tok-kw">int</span>&gt; DRIVE_LEFT_PORTS{<span class="tok-num">-1</span>, <span class="tok-num">-2</span>, <span class="tok-num">-3</span>};
-<span class="tok-kw">static inline const</span> std::vector&lt;<span class="tok-kw">int</span>&gt; DRIVE_RIGHT_PORTS{<span class="tok-num">4</span>, <span class="tok-num">5</span>, <span class="tok-num">6</span>};
-<span class="tok-kw">static constexpr double</span> DRIVE_WHEEL_DIAMETER = <span class="tok-num">3.25</span>;   <span class="tok-com">// inches</span>
-<span class="tok-kw">static constexpr double</span> DRIVE_WHEEL_RPM = <span class="tok-num">450.0</span>;</code></pre>
-
-        <h3 id="imu-ports">IMUs</h3>
-<pre data-copy><code><span class="tok-kw">static constexpr int</span> DRIVE_IMU_1_PORT = <span class="tok-num">7</span>;   <span class="tok-com">// required for turns and odometry</span>
-<span class="tok-kw">static constexpr int</span> DRIVE_IMU_2_PORT = <span class="tok-num">0</span>;   <span class="tok-com">// optional second IMU, 0 disables</span></code></pre>
-        <p>With two IMUs, EZ averages them and can catch one drifting.</p>
-
-        <h3 id="tracking-wheels">Tracking wheels</h3>
-        <p>Fill in every field, then set <code>enabled</code> to <code>true</code>.</p>
-<pre data-copy><code><span class="tok-com">// enabled, type, smart_port, ADI pair, diameter, offset, ratio</span>
-<span class="tok-kw">static constexpr</span> hardware::TrackerConfig LEFT_TRACKER{
-    <span class="tok-kw">true</span>, hardware::TrackerType::Rotation, <span class="tok-num">13</span>, {<span class="tok-num">0</span>, <span class="tok-num">0</span>}, <span class="tok-num">2.75</span>, <span class="tok-num">4.0</span>, <span class="tok-num">1.0</span>};</code></pre>
-        <table class="api-table">
-          <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
-          <tbody>
-            <tr><td><code>type</code></td><td><code>Rotation</code> (V5 rotation sensor), <code>ADI</code> (encoder on the brain's 3-wire ports) or <code>ExpanderADI</code> (encoder on a 3-wire expander)</td></tr>
-            <tr><td><code>smart_port</code></td><td>The rotation sensor's or expander's port. Ignored for <code>ADI</code>.</td></tr>
-            <tr><td><code>adi_ports</code></td><td>Encoder channels, e.g. <code>{'A', 'B'}</code>. <code>{0, 0}</code> for <code>Rotation</code>.</td></tr>
-            <tr><td>diameter, offset, ratio</td><td>Wheel size (in), distance from the turning center (in), and gear ratio</td></tr>
-          </tbody>
-        </table>
-
-        <h3 id="distance-ports">Distance sensors</h3>
-        <p>The four distance sensors for localization are set here too. See <a class="ez-link" href="#mcl">MCL</a>.</p>
-
-        <h3 id="mechanism-ports">Mechanisms</h3>
-        <p>Every mechanism motor and sensor is set in the same <code>SETTINGS</code> block, so all your wiring is in one place.</p>
+      <section class="doc-section" id="first-boot" data-title="First boot checklist">
+        <h2>First boot checklist</h2>
+<p>Run through this with the robot <strong>on a stand, wheels off the ground</strong>.</p>
+<ul class="bullets"><li>The scythe splash plays while the IMU calibrates. <strong>Don't touch the robot until it finishes.</strong></li><li>The controller rumbles once (<code>.</code>). Three long rumbles (<code>---</code>) mean the IMU did not calibrate. Check its port and cable.</li><li>The <strong>Motors</strong> page (the <code>M</code> button on the brain) shows every motor green and <code>OK</code>. Red means unplugged, wrong device or a port used twice.</li><li>Push both joysticks forward. Every drive wheel spins forward. If one side spins backward, flip the sign of that side's ports.</li><li>Turn in place. The heading on the controller screen (<code>H:</code>) goes up when you turn right (clockwise).</li><li>Only then put the robot on the ground.</li></ul>
+<p>If you have a lift, follow the calibration steps in <a class="ez-link" href="#lift">Lift</a> before driving it. Its upward travel stays limited until you set its height.</p>
       </section>
 
-      <!-- ==================== DRIVER CONTROLS ==================== -->
-      <section class="doc-section" id="driver-controls" data-title="Drive controls">
-        <h2>Drive controls</h2>
-        <p>Pick <strong>exactly one</strong> drive mode in <code>opcontrol()</code>. Running two makes the second overwrite the first.</p>
-<pre data-copy><code><span class="tok-com">// chassis.opcontrol_tank();                        // tank</span>
-chassis.<span class="tok-fn">opcontrol_arcade_standard</span>(ez::SPLIT);      <span class="tok-com">// split arcade (default)</span>
-<span class="tok-com">// chassis.opcontrol_arcade_standard(ez::SINGLE);   // single-stick arcade</span>
-<span class="tok-com">// chassis.opcontrol_arcade_flipped(ez::SPLIT);     // flipped split arcade</span>
-<span class="tok-com">// chassis.opcontrol_arcade_flipped(ez::SINGLE);    // flipped single arcade</span></code></pre>
-        <h3 id="curves">Curves &amp; active brake</h3>
-        <p>Set in <code>initialize()</code>:</p>
-<pre data-copy><code>chassis.<span class="tok-fn">opcontrol_curve_buttons_toggle</span>(<span class="tok-kw">true</span>);   <span class="tok-com">// adjust the curve live from the controller</span>
-chassis.<span class="tok-fn">opcontrol_drive_activebrake_set</span>(<span class="tok-num">0.0</span>);  <span class="tok-com">// active brake kP, ~2 recommended, 0 = off</span>
-chassis.<span class="tok-fn">opcontrol_curve_default_set</span>(<span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>); <span class="tok-com">// default curve (remove if using an SD card)</span></code></pre>
-        <h3 id="test-auton">Test an auton: Down + B</h3>
-        <p>With field control disconnected, press <strong>Down + B</strong> to run the selected route. Press it again to cancel at any point, even mid-PID-wait. Joystick drive is paused while it runs.</p>
+      <section class="doc-section" id="hardware" data-title="Hardware configuration">
+        <h2>Hardware configuration</h2>
+<p>All wiring and sensor positions live in <code>include/robot_hardware.hpp</code>, between the <code>SETTINGS</code> and <code>END SETTINGS</code> markers. Edit that section, rebuild and upload. Don't change ports anywhere else.</p>
+<h3 id="port-rules">Rules for every port</h3>
+<ul class="bullets"><li><strong><code>0</code> means disabled.</strong> The device isn't created and nothing tries to talk to it.</li><li><strong>Smart ports are 1 to 21.</strong></li><li><strong>A negative motor port reverses that motor.</strong> Fix direction here, not by negating power in your code. Doing both cancels out.</li><li><strong>Never use one port for two devices.</strong> The Motors page marks a port used twice as <code>USED</code>.</li></ul>
+<h3 id="drive-ports">Drivetrain</h3>
+<pre data-copy><code><span class="tok-kw">static</span> <span class="tok-kw">inline</span> <span class="tok-kw">const</span> std::vector&lt;<span class="tok-kw">int</span>&gt; DRIVE_LEFT_PORTS{<span class="tok-num">-1</span>, <span class="tok-num">-2</span>, <span class="tok-num">-3</span>};   <span class="tok-com">// negative = reversed</span>
+<span class="tok-kw">static</span> <span class="tok-kw">inline</span> <span class="tok-kw">const</span> std::vector&lt;<span class="tok-kw">int</span>&gt; DRIVE_RIGHT_PORTS{<span class="tok-num">4</span>, <span class="tok-num">5</span>, <span class="tok-num">6</span>};
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> <span class="tok-kw">double</span> DRIVE_WHEEL_DIAMETER = ez::wheel::NEW_325;  <span class="tok-com">// inches</span>
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> <span class="tok-kw">double</span> DRIVE_WHEEL_RPM = <span class="tok-num">450.0</span>;      <span class="tok-com">// speed at the wheel, after gearing</span>
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> <span class="tok-kw">int</span> DRIVE_IMU_1_PORT = <span class="tok-num">10</span>;</code></pre>
+<p><code>DRIVE_WHEEL_RPM</code> is the RPM at the <strong>wheel</strong>, after gearing. A 600 RPM cartridge geared 36:48 is 450.</p>
+<h3 id="wheel-sizes">Wheel sizes</h3>
+<p>The size printed on a wheel isn't its real rolling diameter, and odometry is only as accurate as this number. Use the measured values in <code>ez::wheel</code> (from LemLib) for the drive and tracking wheels:</p>
+<table class="api-table"><thead><tr><th>Name</th><th>Diameter (in)</th><th>Name</th><th>Diameter (in)</th></tr></thead><tbody><tr><td><code>NEW_2</code></td><td>2.125</td><td><code>NEW_325</code></td><td>3.25</td></tr><tr><td><code>NEW_275</code></td><td>2.75</td><td><code>NEW_325_HALF</code></td><td>3.246</td></tr><tr><td><code>NEW_275_HALF</code></td><td>2.744</td><td><code>OLD_325</code>, <code>OLD_325_HALF</code></td><td>3.25, 3.246</td></tr><tr><td><code>OLD_275</code></td><td>2.75</td><td><code>NEW_4</code></td><td>4.0</td></tr><tr><td><code>OLD_275_HALF</code></td><td>2.74</td><td><code>NEW_4_HALF</code></td><td>3.995</td></tr><tr><td></td><td></td><td><code>OLD_4</code>, <code>OLD_4_HALF</code></td><td>4.18, 4.175</td></tr></tbody></table>
+<p><code>NEW</code> is the current VEX omni wheel, <code>OLD</code> the previous generation, <code>HALF</code> the half-cut versions. The old 4" wheel really is 4.18", so picking the wrong one is off by about 3 inches over a 72-inch drive.</p>
+<h3 id="mechanism-ports">Mechanisms</h3>
+<table class="api-table"><thead><tr><th>Setting</th><th>Meaning</th></tr></thead><tbody><tr><td><code>LIFT_LEFT_PORT</code>, <code>LIFT_RIGHT_PORT</code></td><td>The two lift motors. They normally have opposite signs, because they face each other.</td></tr><tr><td><code>CLAW_PORT</code></td><td>Claw motor.</td></tr><tr><td><code>LIFT_ROTATION_PORT</code></td><td>Optional rotation sensor on the lift. <code>0</code> uses the motor encoders instead.</td></tr><tr><td><code>LIFT_MOTOR_DEGREES_PER_SENSOR_DEGREE</code></td><td>Converts rotation sensor degrees into motor degrees. Signed: negative if the sensor counts the other way.</td></tr><tr><td><code>ROLLER_MOTOR_PORT</code>, <code>ROLLER_OPTICAL_PORT</code>, <code>ROLLER_POWER</code></td><td>Optional color roller. See <a class="ez-link" href="#roller">Roller</a>.</td></tr></tbody></table>
+<h3 id="imu-ports">IMUs</h3>
+<table class="api-table"><thead><tr><th>Setting</th><th>Meaning</th></tr></thead><tbody><tr><td><code>DRIVE_IMU_1_PORT</code></td><td>Main drivetrain IMU. Required for turns and odometry.</td></tr><tr><td><code>DRIVE_IMU_2_PORT</code></td><td>Optional second IMU. EZ-Template averages them and can catch one drifting.</td></tr><tr><td><code>LIFT_IMU_PORT</code></td><td>Optional IMU on the lift, watched by <a class="ez-link" href="#vmp">VMP</a> only.</td></tr><tr><td><code>VMP_CONSOLE_CSV</code></td><td><code>true</code> prints VMP data to the terminal as CSV.</td></tr></tbody></table>
+<h3 id="distance-ports">Distance sensors</h3>
+<p>Each <code>localization::Mount</code> is <code>{port, x, y, heading, scale}</code>, measured from the robot's <strong>turning center</strong> to the sensor's face. +X is right, +Y is forward, and heading is clockwise from forward (front <code>0</code>, right <code>90</code>, back <code>180</code>, left <code>270</code>). Leave <code>scale</code> at <code>1.0</code> unless a sensor reads consistently long or short.</p>
+<table class="api-table"><thead><tr><th>Setting</th><th>Meaning</th></tr></thead><tbody><tr><td><code>FIELD_HALF_SIZE</code></td><td>Half the field width in inches, from the center to the wall.</td></tr><tr><td><code>DISTANCE_SENSOR_DELAY_MS</code></td><td>How old a distance reading is by the time you get it.</td></tr><tr><td><code>DISTANCE_RESET_MAX_JUMP</code></td><td>Biggest position correction, in inches, a wall reset may make.</td></tr><tr><td><code>DISTANCE_MIN_CONFIDENCE</code></td><td>Ignore readings the sensor rates below this (0-63, past 200 mm only). <code>0</code> = off.</td></tr></tbody></table>
+<p>More in <a class="ez-link" href="#localization">Localization</a>.</p>
+<h3 id="tracking-wheels">Tracking wheels</h3>
+<pre data-copy><code><span class="tok-com">//                         enabled, type,                         smart_port, ADI pair, diameter, offset, ratio</span>
+LEFT_TRACKER{  <span class="tok-kw">true</span>, hardware::TrackerType::Rotation, <span class="tok-num">13</span>,         {<span class="tok-num">0</span>, <span class="tok-num">0</span>},   <span class="tok-num">2.75</span>,     <span class="tok-num">4.0</span>,    <span class="tok-num">1.0</span>};</code></pre>
+<table class="api-table"><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody><tr><td><code>enabled</code></td><td>Leave <code>false</code> until the rest is filled in correctly.</td></tr><tr><td><code>type</code></td><td><code>Rotation</code> (V5 rotation sensor), <code>ADI</code> (encoder on the brain's 3-wire ports) or <code>ExpanderADI</code> (encoder on a 3-wire expander).</td></tr><tr><td><code>smart_port</code></td><td>The rotation sensor's port, or the expander's port. Ignored for <code>ADI</code>.</td></tr><tr><td><code>adi_ports</code></td><td>Encoder channels, for example <code>{'A', 'B'}</code>. <code>{0, 0}</code> for <code>Rotation</code>.</td></tr><tr><td><code>diameter</code></td><td>Tracking wheel diameter in inches.</td></tr><tr><td><code>offset</code></td><td>Distance from the tracking wheel to the turning center, in inches.</td></tr><tr><td><code>ratio</code></td><td>Gear ratio between the wheel and the sensor.</td></tr></tbody></table>
+<div class="callout"><b>After you change anything</b><p>Rebuild and upload, check that every configured motor is green on the brain's <strong>Motors</strong> page, and read the terminal (<code>pros terminal</code>) for <code>[Lift]</code>, <code>[VMP]</code> or <code>[Reaper]</code> messages about rejected settings.</p></div>
       </section>
 
-      <!-- ==================== LIFT ==================== -->
-      <section class="doc-section" id="lift" data-title="Lift">
-        <h2>Lift</h2>
-        <p>The lift runs on its own background task, so it can move while the chassis drives.</p>
-        <table class="api-table">
-          <thead><tr><th>Input</th><th>Behavior</th></tr></thead>
-          <tbody>
-            <tr><td>Raise button (hold)</td><td>Lift up. Releasing holds the height.</td></tr>
-            <tr><td>Lower button (hold)</td><td>Lift down. Releasing holds the height.</td></tr>
-            <tr><td>Both together</td><td>Hold position</td></tr>
-            <tr><td>Return button (press)</td><td>Return to the startup height</td></tr>
-          </tbody>
-        </table>
-
-        <h3 id="lift-buttons">Changing the buttons</h3>
-        <p>Every lift button is configurable. Each one is just an argument to <code>lift::driver_update()</code> in <code>opcontrol()</code> in <code>main.cpp</code>, so swap in any controller button you want:</p>
-<pre data-copy><code>lift::<span class="tok-fn">driver_update</span>(
-    master.<span class="tok-fn">get_digital</span>(pros::E_CONTROLLER_DIGITAL_R2),             <span class="tok-com">// raise</span>
-    master.<span class="tok-fn">get_digital</span>(pros::E_CONTROLLER_DIGITAL_L2),             <span class="tok-com">// lower</span>
-    master.<span class="tok-fn">get_digital_new_press</span>(pros::E_CONTROLLER_DIGITAL_Y));  <span class="tok-com">// return</span></code></pre>
-        <p>Use <code>get_digital</code> for hold buttons and <code>get_digital_new_press</code> for the return button, so it fires once per press.</p>
-        <div class="callout warn"><b>Watch for overlaps</b><p>EZ's joystick-curve buttons are on by default (<code>opcontrol_curve_buttons_toggle(true)</code>) and use Left/Right and Y/A. If you bind the lift to one of those, either turn the curve buttons off or move them.</p></div>
-
-        <h3 id="lift-settings">Lift settings</h3>
-        <p>Travel limit, presets, PID and gravity compensation live in <code>lift_settings.hpp</code>.</p>
-<pre data-copy><code>c.max_height = <span class="tok-num">1150</span>;             <span class="tok-com">// your measured safe top, in motor degrees</span>
-c.allow_unbounded_jog = <span class="tok-kw">false</span>;    <span class="tok-com">// true only while measuring travel</span>
-c.full_power_manual_jog = <span class="tok-kw">true</span>;   <span class="tok-com">// false for a smoother, slower jog</span></code></pre>
-        <div class="callout"><b>Start low</b><p>The lift's position at power-on becomes zero, so always start with the lift at its lowest point.</p></div>
+      <section class="doc-section" id="controls" data-title="Driver controls">
+        <h2>Driver controls</h2>
+<p>Every button is set in one file, <code>include/robot_controls.hpp</code>, the same way ports live in <code>robot_hardware.hpp</code>. Change a binding there, rebuild, upload. Nothing else needs editing.</p>
+<pre data-copy><code><span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> Button LIFT_UP = btn::R2;      <span class="tok-com">// change to btn::UP, btn::X, ...</span>
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> Button ROLLER_TO_COLOR = btn::A;</code></pre>
+<ul class="bullets"><li>Button names: <code>btn::L1 L2 R1 R2 UP DOWN LEFT RIGHT X B Y A</code>, or <code>btn::NONE</code> to leave an action unbound.</li><li><strong>The build fails if two driver actions share a button</strong>, with the message <code>two driver actions are mapped to the same button</code>.</li><li>Claw powers are set there too.</li></ul>
+<h3 id="button-map">Button map</h3>
+<table class="api-table"><thead><tr><th>Input</th><th>Action</th></tr></thead><tbody><tr><td>Left stick (up/down)</td><td>Drive forward / back (split arcade)</td></tr><tr><td>Right stick (left/right)</td><td>Turn</td></tr><tr><td><strong>R2</strong> (hold)</td><td>Lift up. Releasing holds the height.</td></tr><tr><td><strong>L2</strong> (hold)</td><td>Lift down. Releasing holds the height.</td></tr><tr><td><strong>Left</strong> (press)</td><td>Lift returns to its start (bottom) position</td></tr><tr><td><strong>R1</strong> (hold)</td><td>Claw forward</td></tr><tr><td><strong>L1</strong> (hold)</td><td>Claw reverse</td></tr><tr><td><strong>A</strong> (hold)</td><td>Roller turns to the alliance color and holds it; release stops it</td></tr><tr><td><strong>Down + B</strong></td><td>Run / cancel the selected auton (only with no field controller connected)</td></tr></tbody></table>
+<div class="callout warn"><b>Known overlap</b><p>EZ-Template's joystick curve buttons are on by default (<code>CURVE_BUTTONS_ENABLED</code> in <code>robot_controls.hpp</code>) and use <strong>Left/Right</strong> for the left stick curve and <strong>Y/A</strong> for the right. So <strong>Left</strong> (lift return) and <strong>A</strong> (roller) also change a curve, and the change is saved to the SD card. Startup prints each overlap to the terminal. Set <code>CURVE_BUTTONS_ENABLED = false</code> or move them to fix it.</p></div>
+<h3 id="stick-feel">Stick feel</h3>
+<table class="api-table"><thead><tr><th>Setting</th><th>Default</th><th>What it does</th></tr></thead><tbody><tr><td><code>DRIVE_DEADBAND</code></td><td><code>3</code></td><td>Stick values below this count as centered, so a resting stick never creeps.</td></tr><tr><td><code>DRIVE_MIN_OUTPUT</code></td><td><code>0</code> (off)</td><td>The smallest power a stick sends once it's past the deadband, so a light push actually moves the robot. Start at <code>10</code> and raise it until the lightest push just starts the robot rolling.</td></tr></tbody></table>
+<h3 id="drive-style">Drive style</h3>
+<table class="api-table"><thead><tr><th><code>DriveStyle::</code></th><th>Sticks</th></tr></thead><tbody><tr><td><code>SplitArcade</code> (default)</td><td>Left stick forward/back, right stick turn</td></tr><tr><td><code>SingleArcade</code></td><td>Left stick does both</td></tr><tr><td><code>FlippedSplitArcade</code></td><td>Right stick forward/back, left stick turn</td></tr><tr><td><code>FlippedSingleArcade</code></td><td>Right stick does both</td></tr><tr><td><code>Tank</code></td><td>Left stick left side, right stick right side</td></tr></tbody></table>
+<p>The PID tuner's buttons are in the same file (<code>PID_TUNER_*</code>). They only matter while the tuner is on.</p>
+<h3 id="controller-screen">Controller screen</h3>
+<pre data-copy><code>X  12.0 Y -36.5      &lt;- position on the field in inches (center is 0, 0)
+H:90.0 deg           &lt;- heading, clockwise
+L:420.0 mdeg         &lt;- lift position in motor degrees</code></pre>
+<table class="api-table"><thead><tr><th>Shows</th><th>Meaning</th></tr></thead><tbody><tr><td><code>X:--- Y:---</code> / <code>H:--- deg</code></td><td>Odometry isn't ready yet (still calibrating).</td></tr><tr><td><code>XY: RANGE</code> / <code>H: RANGE</code></td><td>The value is too big to fit. Something is wrong with the position.</td></tr><tr><td><code>L: ports off</code></td><td>Both lift ports are <code>0</code>. Normal if you have no lift.</td></tr><tr><td><code>L: check ports</code></td><td>Only one lift port is set, both are the same, or one is above 21.</td></tr><tr><td><code>L: left missing</code> / <code>L: right absent</code></td><td>The port is set, but no motor answers on it.</td></tr><tr><td><code>L: FAULT</code></td><td>The lift stopped itself. See <a class="ez-link" href="#lift-faults">Lift faults</a>.</td></tr></tbody></table>
+<h3 id="test-auton">Down + B: testing autons</h3>
+<ol class="steps"><li><strong>Pick a route</strong><p>On the brain's <strong>Routes</strong> page, with <strong>no</strong> field controller or competition switch connected.</p></li><li><strong>Hold Down and press B</strong><p>The auton runs, and joystick driving pauses.</p></li><li><strong>Press Down + B again to cancel</strong><p>The drive stops and the lift holds where it is.</p></li></ol>
+<p>When the auton finishes, the drive brake mode goes back to what it was. If a field controller gets connected while a test is running, the test is cancelled.</p>
       </section>
 
-      <!-- ==================== SELECTOR ==================== -->
-      <section class="doc-section" id="selector" data-title="Route selector">
-        <h2>Route selector</h2>
-        <p>Reaper's brain-screen selector has <strong>match slots</strong>, <strong>skills slots</strong>, and a <strong>red/blue auto toggle</strong>. Pick a route before the match and it runs in autonomous.</p>
+      <section class="doc-section" id="brain-screen" data-title="Brain screen">
+        <h2>Brain screen</h2>
+<h3 id="splash">Startup splash</h3>
+<p>When the program starts, a 3-second scythe animation plays: the swing, the strike, glass cracking, and the shards falling away to show the dashboard. It covers the IMU calibration happening at the same time, and never cuts it short.</p>
+<ul class="bullets"><li>To change the length, call <code>reaper_splash::min_duration_set(ms)</code> <strong>before</strong> <code>reaper_splash::start()</code> in <code>initialize()</code>. The minimum is 1620 ms.</li><li>To turn the splash off, remove <code>reaper_splash::start();</code> from <code>initialize()</code>.</li><li><strong>Keep the robot still until it's done.</strong> One rumble means the IMU is good, three long rumbles mean it failed.</li></ul>
+<h3 id="dashboard">Dashboard</h3>
+<table class="api-table"><thead><tr><th>Button</th><th>Page</th><th>What's on it</th></tr></thead><tbody><tr><td>⌂</td><td><strong>Home</strong></td><td>Team logo and the selected route</td></tr><tr><td><strong>A</strong></td><td><strong>Routes</strong></td><td>Pick a route: <strong>Main Match</strong> (up to 15) or <strong>Skills Match</strong> (up to 3), plus the <strong>RED / BLUE</strong> alliance button</td></tr><tr><td><strong>M</strong></td><td><strong>Motors</strong></td><td>Every configured motor's connection and temperature</td></tr><tr><td><strong>S</strong></td><td><strong>Sensors</strong></td><td>IMU stillness, shake, hits, tilt and lift sway (see <a class="ez-link" href="#vmp">VMP</a>)</td></tr></tbody></table>
+<ul class="bullets"><li>Tap a route to select it. While a route is running, or while a field controller has the robot enabled, selecting is locked. Pick your route while disabled.</li><li>The <strong>RED / BLUE</strong> button sets the alliance color the <a class="ez-link" href="#roller">roller</a> looks for.</li></ul>
+<h3 id="motors-page">Motors page status</h3>
+<table class="api-table"><thead><tr><th>Status</th><th>Color</th><th>Meaning</th></tr></thead><tbody><tr><td><code>OK</code></td><td>Green</td><td>Motor detected and reading normally</td></tr><tr><td><code>OFF</code></td><td>Red</td><td>Nothing plugged into that port</td></tr><tr><td><code>TYPE</code></td><td>Red</td><td>Something other than a motor is plugged in there</td></tr><tr><td><code>PORT</code></td><td>Red</td><td>The port number in <code>robot_hardware.hpp</code> isn't valid</td></tr><tr><td><code>USED</code></td><td>Red</td><td>Two devices are set to the same port</td></tr><tr><td><code>READ</code></td><td>Amber</td><td>Motor found, but the reading looks wrong</td></tr><tr><td><code>STALE</code></td><td></td><td>The readings stopped updating</td></tr><tr><td><code>WAIT</code></td><td></td><td>Not checked yet</td></tr></tbody></table>
+<h3 id="team-theme">Making the dashboard yours</h3>
+<p>The splash stays the same for every team. Everything after it takes its team name, logo and colors from <strong>one folder, <code>src/team/</code></strong>. It ships filled in for 4588G Gambit as an example.</p>
+<pre data-copy><code><span class="tok-kw">inline</span> <span class="tok-kw">constexpr</span> <span class="tok-kw">const</span> <span class="tok-kw">char</span>* TEAM_NAME = <span class="tok-str">"1234A ROBOTS"</span>;   <span class="tok-com">// shown when there's no logo</span></code></pre>
+<p>Colors are hex codes written <code>0xRRGGBB</code> (<code>#1E90FF</code> becomes <code>0x1E90FF</code>): <code>PAGE</code>, <code>CARD</code>, <code>CARD_PRESSED</code>, <code>TEXT</code>, <code>TEXT_PRESSED</code>, <code>NAV_BUTTON</code>, <code>BORDER</code>, the <code>STATUS_*</code> colors and the alliance button colors. Keep <code>TEXT</code> and <code>PAGE</code> far apart so it reads in a bright venue, and leave the status colors green / red / amber.</p>
+<ol class="steps"><li><strong>Make the image</strong><p>A PNG up to about 400 × 200 pixels; 200 × 200 fits best.</p></li><li><strong>Convert it</strong><p>In the <a class="ez-link" href="https://lvgl.io/tools/imageconverter" target="_blank" rel="noopener">LVGL image converter</a> choose <strong>LVGL v9</strong>, color format <strong>RGB565</strong> (or <strong>ARGB8888</strong> to keep transparency), and a name with no spaces like <code>my_team_logo</code>.</p></li><li><strong>Add it</strong><p>Put the <code>.c</code> file in <code>src/team/</code> and replace its LVGL <code>#include</code> lines with <code>#include "liblvgl/lvgl.h"</code>.</p></li><li><strong>Point the theme at it</strong><p>In <code>src/team/team_theme.hpp</code>, change <code>gambit_logo</code> to your image's name in both places. Set <code>LOGO = nullptr;</code> to show <code>TEAM_NAME</code> instead.</p></li></ol>
+<pre data-copy><code><span class="tok-kw">extern</span> <span class="tok-str">"C"</span> {
+<span class="tok-fn">LV_IMAGE_DECLARE</span>(my_team_logo);
+}
+<span class="tok-kw">inline</span> <span class="tok-kw">const</span> lv_image_dsc_t* <span class="tok-kw">const</span> LOGO = &amp;my_team_logo;</code></pre>
+<p>Once your logo works, delete <code>src/team/gambit_logo.cpp</code> to make every upload a little smaller.</p>
       </section>
 
-      <!-- ==================== ROUTES ==================== -->
-      <section class="doc-section" id="routes" data-title="Writing a route">
-        <h2>Writing a route</h2>
-        <p>Every slot is already registered. Rename its label and write movements inside its <code>[] { ... }</code> block. Keep the function name (<code>match_01</code>) as it is.</p>
-<pre data-copy><code><span class="tok-com">// match_routes.cpp</span>
-ez::Auton <span class="tok-fn">match_01</span>() {
-  <span class="tok-kw">return</span> {<span class="tok-str">"Right Side"</span>, <span class="tok-str">"Score, then grab the stack"</span>, [] {
-    chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">24_in</span>, <span class="tok-num">80</span>);
-    chassis.<span class="tok-fn">pid_wait</span>();
-    chassis.<span class="tok-fn">pid_turn_set</span>(<span class="tok-num">90_deg</span>, <span class="tok-num">80</span>);
+      <section class="doc-section" id="autons" data-title="Writing autons">
+        <h2>Writing autons</h2>
+<table class="api-table"><thead><tr><th>File</th><th>Contains</th></tr></thead><tbody><tr><td><code>src/routes/match_routes.cpp</code></td><td>15 match route slots and <code>register_routes()</code></td></tr><tr><td><code>src/routes/skills_routes.cpp</code></td><td>3 skills route slots</td></tr><tr><td><code>include/autons.hpp</code></td><td>Declarations for every route</td></tr><tr><td><code>src/autons.cpp</code></td><td><code>default_constants()</code>: PID, exit conditions, slew, odometry settings</td></tr></tbody></table>
+<h3 id="route-anatomy">Anatomy of a route</h3>
+<pre data-copy><code>ez::Auton <span class="tok-fn">match_02</span>() {
+  <span class="tok-kw">return</span> {<span class="tok-str">"Left Side"</span>, <span class="tok-str">"Grab the near goal, score, touch the bar."</span>, [] {
+    chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">24_in</span>, <span class="tok-num">110</span>);
     chassis.<span class="tok-fn">pid_wait</span>();
   }};
 }</code></pre>
-        <p>Registration sits at the bottom of the same file:</p>
-<pre><code><span class="tok-kw">void</span> <span class="tok-fn">register_routes</span>() {
-  ez::as::auton_selector.<span class="tok-fn">autons_add</span>({<span class="tok-fn">match_01</span>(), <span class="tok-fn">match_02</span>(), <span class="tok-com">/* … */</span> <span class="tok-fn">match_15</span>()});
+<ul class="bullets"><li><strong>Name</strong>: the title shown on the brain's Routes page. Keep it short.</li><li><strong>Description</strong>: one line explaining what the route does.</li><li><strong>Body</strong>: the code that runs. If you rename the function, update <code>include/autons.hpp</code> and <code>register_routes()</code> to match.</li></ul>
+<h3 id="registering">Registering routes</h3>
+<pre data-copy><code><span class="tok-kw">void</span> <span class="tok-fn">register_routes</span>() {
+  ez::as::auton_selector.<span class="tok-fn">autons_add</span>({ <span class="tok-fn">match_01</span>(), <span class="tok-fn">match_02</span>(), /* ... */ <span class="tok-fn">match_15</span>() });
   ez::as::auton_selector.<span class="tok-fn">skills_add</span>({<span class="tok-fn">skills_01</span>(), <span class="tok-fn">skills_02</span>(), <span class="tok-fn">skills_03</span>()});
 }</code></pre>
-        <p>Every route starts after the shared resets in <code>autonomous()</code> (pose <code>0, 0, 0</code>). Use short labels; long ones get shortened on the button.</p>
+<p>Up to <strong>15</strong> match routes and <strong>3</strong> skills routes, in the order they appear on the brain. The selected route is saved to the SD card (<code>auto.txt</code>) if one is inserted, so it survives a power cycle.</p>
+<h3 id="before-route">What runs before your route</h3>
+<p>Every time <code>autonomous()</code> starts (on a field or with Down + B), Reaper resets PID targets, the IMU and the drive sensors, sets the position to <code>(0, 0)</code> facing <code>0°</code>, sets the drive brake to HOLD, enables the lift and stops the roller. To start somewhere else, put this at the top of the route:</p>
+<pre data-copy><code>chassis.<span class="tok-fn">odom_xyt_set</span>(<span class="tok-num">-48_in</span>, <span class="tok-num">-60_in</span>, <span class="tok-num">90_deg</span>);</code></pre>
       </section>
 
-      <!-- ==================== MOVEMENTS ==================== -->
-      <section class="doc-section" id="movements" data-title="Movements">
-        <h2>Movements</h2>
-        <p>Speed is a power cap from 0 to 127. Forward is +Y, +X is right, and positive headings turn clockwise. A setter starts a motion and returns right away; a wait blocks until it's done. A new setter <strong>replaces</strong> the current motion; it doesn't queue.</p>
+      <section class="doc-section" id="motions" data-title="Motions">
+        <h2>Motions</h2>
+<p>These are EZ-Template functions. <a class="ez-link" href="https://ez-robotics.github.io/EZ-Template/" target="_blank" rel="noopener">Its docs</a> cover every one of them in detail.</p>
+<pre data-copy><code>chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">24_in</span>, <span class="tok-num">110</span>);           <span class="tok-com">// drive straight 24 in at speed 110</span>
+chassis.<span class="tok-fn">pid_wait</span>();                          <span class="tok-com">// wait until it's done</span>
 
-        <h3 id="mv-drive">Drive a distance</h3>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">24_in</span>, <span class="tok-num">80</span>);    <span class="tok-com">// negative distance drives backward</span>
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
-
-        <h3 id="mv-turn">Turn</h3>
-        <p><code>pid_turn_set</code> turns to an <strong>absolute</strong> heading. Calling 90° twice doesn't turn twice. Use <code>pid_turn_relative_set</code> to add to the target.</p>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_turn_set</span>(<span class="tok-num">90_deg</span>, <span class="tok-num">80</span>);
+chassis.<span class="tok-fn">pid_turn_set</span>(<span class="tok-num">90_deg</span>, <span class="tok-num">90</span>);            <span class="tok-com">// turn to face 90° (absolute)</span>
 chassis.<span class="tok-fn">pid_wait</span>();
-chassis.<span class="tok-fn">pid_turn_relative_set</span>(<span class="tok-num">45_deg</span>, <span class="tok-num">80</span>);  <span class="tok-com">// target becomes 135°</span>
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
-        <p>Turn to face a field point (needs a valid pose):</p>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_turn_set</span>(ez::united_pose{<span class="tok-num">24_in</span>, <span class="tok-num">24_in</span>}, ez::fwd, <span class="tok-num">80</span>);
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
 
-        <h3 id="mv-swing">Swing</h3>
-        <p>One side drives while the other holds. <code>ez::LEFT_SWING</code> means the left side moves.</p>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_swing_set</span>(ez::LEFT_SWING, <span class="tok-num">45_deg</span>, <span class="tok-num">80</span>);
+chassis.<span class="tok-fn">pid_swing_set</span>(ez::LEFT_SWING, <span class="tok-num">45_deg</span>, <span class="tok-num">90</span>);  <span class="tok-com">// swing on one side</span>
 chassis.<span class="tok-fn">pid_wait</span>();
-chassis.<span class="tok-fn">pid_swing_set</span>(ez::LEFT_SWING, <span class="tok-num">90_deg</span>, <span class="tok-num">80</span>, <span class="tok-num">30</span>);  <span class="tok-com">// wider swing: other side at 30</span>
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
 
-        <h3 id="mv-point">Move to a point</h3>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_odom_set</span>(ez::united_odom{{<span class="tok-num">24_in</span>, <span class="tok-num">36_in</span>}, ez::fwd, <span class="tok-num">80</span>});
+chassis.<span class="tok-fn">pid_turn_set</span>({<span class="tok-num">24_in</span>, <span class="tok-num">24_in</span>}, ez::fwd, <span class="tok-num">90</span>);  <span class="tok-com">// turn to face a point</span>
 chassis.<span class="tok-fn">pid_wait</span>();
-chassis.<span class="tok-fn">pid_odom_set</span>(ez::united_odom{{<span class="tok-num">0_in</span>, <span class="tok-num">0_in</span>}, ez::rev, <span class="tok-num">60</span>});   <span class="tok-com">// drive back in reverse</span>
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
 
-        <h3 id="mv-boomerang">Boomerang</h3>
-        <p>Add a heading to arrive at a point facing a direction. Leave room for the curve.</p>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_odom_boomerang_set</span>(ez::united_odom{{<span class="tok-num">24_in</span>, <span class="tok-num">36_in</span>, <span class="tok-num">90_deg</span>}, ez::fwd, <span class="tok-num">80</span>});
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
+chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">36_in</span>, <span class="tok-num">110</span>);
+chassis.<span class="tok-fn">pid_wait_until</span>(<span class="tok-num">24_in</span>);               <span class="tok-com">// do something partway through</span>
+lift::<span class="tok-fn">move_to</span>(<span class="tok-str">"Score"</span>);
+chassis.<span class="tok-fn">pid_wait</span>();
 
-        <h3 id="mv-path">Pure pursuit paths</h3>
-<pre data-copy><code>std::vector&lt;ez::united_odom&gt; path = {
-    {{<span class="tok-num">0_in</span>, <span class="tok-num">24_in</span>}, ez::fwd, <span class="tok-num">80</span>},
-    {{<span class="tok-num">24_in</span>, <span class="tok-num">36_in</span>}, ez::fwd, <span class="tok-num">80</span>},
-    {{<span class="tok-num">36_in</span>, <span class="tok-num">48_in</span>}, ez::fwd, <span class="tok-num">60</span>}
+chassis.<span class="tok-fn">pid_odom_set</span>({{<span class="tok-num">24_in</span>, <span class="tok-num">24_in</span>}, ez::fwd, <span class="tok-num">110</span>});   <span class="tok-com">// drive to a point</span>
+chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
+<p>Use <code>pid_wait_quick_chain()</code> instead of <code>pid_wait()</code> to flow straight into the next motion without fully stopping.</p>
+<h3 id="swing-point">Swinging to a point</h3>
+<p>The heading is worked out once, when the swing starts, from the wheel the robot pivots on (<code>LEFT_SWING</code> pivots on the right wheel, <code>RIGHT_SWING</code> on the left), so the robot's <em>center</em> ends up lined up with the point. It needs the drive width (<code>chassis.drive_width_set(...)</code>). Use <code>ez::rev</code> to point the back at it.</p>
+<pre data-copy><code>chassis.<span class="tok-fn">pid_swing_set</span>(ez::RIGHT_SWING, {<span class="tok-num">24_in</span>, <span class="tok-num">24_in</span>}, ez::fwd, <span class="tok-num">90</span>);  <span class="tok-com">// swing to face a point</span>
+chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
+<h3 id="robot-speed">Robot speed</h3>
+<pre data-copy><code>pose v = chassis.<span class="tok-fn">odom_velocity_get</span>();            <span class="tok-com">// field x/y in in/s, theta in deg/s</span>
+pose local = chassis.<span class="tok-fn">odom_velocity_local_get</span>();  <span class="tok-com">// y = forward speed, x = sideways</span>
+pose ahead = chassis.<span class="tok-fn">odom_pose_estimate</span>(<span class="tok-num">150</span>);    <span class="tok-com">// where it'll be in 150 ms at this speed</span></code></pre>
+<p>Speeds are smoothed over about 50 ms, and resetting the position never counts as moving.</p>
+      </section>
+
+      <section class="doc-section" id="auton-mechanisms" data-title="Mechanisms in a route">
+        <h2>Mechanisms in a route</h2>
+<p>Move the lift and claw through the lift module, never with <code>LiftL.move()</code> or <code>claw.move()</code> directly, so the background controller stays in charge:</p>
+<pre data-copy><code>lift::<span class="tok-fn">move_to</span>(<span class="tok-str">"Score"</span>);             <span class="tok-com">// a preset you measured (see Lift)</span>
+chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">12_in</span>, <span class="tok-num">80</span>);
+chassis.<span class="tok-fn">pid_wait</span>();
+<span class="tok-kw">if</span> (!lift::<span class="tok-fn">wait_until_settled</span>(<span class="tok-num">3000</span>)) <span class="tok-kw">return</span>;  <span class="tok-com">// stop the route if the lift never arrived</span></code></pre>
+<p>For a timed lift + claw + piston combo, use a <a class="ez-link" href="#sequences">sequence</a>.</p>
+      </section>
+
+      <section class="doc-section" id="tuning" data-title="Tuning">
+        <h2>Tuning</h2>
+<p><code>src/autons.cpp</code> holds the numbers that shape every motion:</p>
+<table class="api-table"><thead><tr><th>Call</th><th>Controls</th></tr></thead><tbody><tr><td><code>pid_drive_constants_set(p, i, d)</code></td><td>Driving straight</td></tr><tr><td><code>pid_heading_constants_set(p, i, d)</code></td><td>Staying straight while driving</td></tr><tr><td><code>pid_turn_constants_set(p, i, d, start_i)</code></td><td>Turning in place</td></tr><tr><td><code>pid_swing_constants_set(p, i, d)</code></td><td>Swing turns</td></tr><tr><td><code>pid_odom_angular_constants_set</code>, <code>pid_odom_boomerang_constants_set</code></td><td>Odometry motions</td></tr><tr><td><code>pid_*_exit_condition_set(...)</code></td><td>When a motion counts as done</td></tr><tr><td><code>pid_*_chain_constant_set(...)</code></td><td>How close counts as done for <code>pid_wait_quick_chain()</code></td></tr><tr><td><code>slew_*_constants_set(distance, min_speed)</code></td><td>Gentle starts</td></tr></tbody></table>
+<p>The shipped values are a starting point, not a tune for your robot. EZ-Template's PID tuner and <a class="ez-link" href="https://ez-robotics.github.io/EZ-Template/" target="_blank" rel="noopener">tuning guide</a> work in Reaper unchanged.</p>
+<h3 id="stuck-detection">Stuck detection</h3>
+<p>Reaper reworks EZ-Template's exit conditions to detect a robot that's stuck, for example pushed against a wall or blocked by another robot. A <code>pid_wait()</code> no longer ends just because the robot is moving slowly. It ends when the robot stops making progress for long enough. The shortest window it checks is 350 ms, so shrinking <code>velocity_exit_time</code> won't make it trigger on a slow but moving robot.</p>
+      </section>
+
+      <section class="doc-section" id="lift" data-title="Lift">
+        <h2>Lift</h2>
+<p>The lift module runs the lift and claw from one background task, every 10 ms. Your code only sends it commands ("go to 400", "hold here", "jog up"), so two pieces of code can't fight over it. Positions are in <strong>motor degrees</strong>, measured from where the lift was when the program started.</p>
+<table class="api-table"><thead><tr><th>File</th><th>What to set</th></tr></thead><tbody><tr><td><code>include/robot_hardware.hpp</code></td><td><code>LIFT_LEFT_PORT</code>, <code>LIFT_RIGHT_PORT</code>, <code>CLAW_PORT</code>, optional <code>LIFT_ROTATION_PORT</code></td></tr><tr><td><code>include/Reaper-Template/lift_settings.hpp</code></td><td>Travel limit, presets, PID, gravity compensation</td></tr><tr><td><code>include/Reaper-Template/lift_core.hpp</code></td><td>All settings and their defaults. Read it, don't edit it.</td></tr></tbody></table>
+<h3 id="lift-calibrate">Calibrating (do this first)</h3>
+<p>The lift ships <strong>without</strong> an upper limit, because the right height depends on your robot. Until you set one, it refuses automatic moves above 0.</p>
+<ol class="steps"><li><strong>Start low</strong><p>The lift's position at power-on becomes zero. Always power on with the lift at its lowest point.</p></li><li><strong>Set your ports</strong><p>The two motors face each other, so one is normally negative.</p></li><li><strong>Measure the travel</strong><p><code>lift_settings.hpp</code> ships with <code>c.allow_unbounded_jog = true</code>. With the robot on a stand, hold <strong>R2</strong> to raise the lift to its safe top and read the controller's <code>L:</code> line. Until <code>max_height</code> is set, R2/L2 move slowly.</p></li><li><strong>Set the limit</strong><p>Put your measured number in <code>max_height</code> and turn calibration mode off (below).</p></li><li><strong>Check the direction</strong><p>R2 must raise the lift and make <code>L:</code> count up. If not, flip the signs of both lift ports.</p></li></ol>
+<pre data-copy><code>c.max_height = <span class="tok-num">1150</span>;           <span class="tok-com">// your measured number</span>
+c.allow_unbounded_jog = <span class="tok-kw">false</span>; <span class="tok-com">// turn calibration mode off</span></code></pre>
+<div class="callout warn"><b>Leave calibration mode off</b><p>With <code>allow_unbounded_jog = true</code>, nothing stops the lift at the top.</p></div>
+<h3 id="lift-presets">Presets</h3>
+<pre data-copy><code><span class="tok-kw">inline</span> std::vector&lt;Preset&gt; <span class="tok-fn">presets</span>() {
+  <span class="tok-kw">return</span> {{<span class="tok-str">"Start"</span>, <span class="tok-num">0</span>}, {<span class="tok-str">"Low"</span>, <span class="tok-num">320</span>}, {<span class="tok-str">"Score"</span>, <span class="tok-num">780</span>}};   <span class="tok-com">// measured values only</span>
+}
+
+lift::<span class="tok-fn">move_to</span>(<span class="tok-str">"Score"</span>);                <span class="tok-com">// go to a preset</span>
+lift::<span class="tok-fn">move_to</span>(<span class="tok-num">500.0</span>);                  <span class="tok-com">// or a raw height</span>
+lift::<span class="tok-fn">wait_until_settled</span>(<span class="tok-num">4500</span>);        <span class="tok-com">// true = arrived; false = timed out or faulted</span>
+lift::<span class="tok-fn">next</span>();  lift::<span class="tok-fn">previous</span>();       <span class="tok-com">// step to the next preset above/below</span>
+lift::<span class="tok-fn">set_preset</span>(<span class="tok-str">"Mid"</span>, <span class="tok-num">550</span>);          <span class="tok-com">// add or change a preset after startup</span></code></pre>
+<p>Every preset has to sit between 0 and <code>max_height</code>, or the lift refuses to start (<code>L: preset</code>). <code>move_to</code> returns <code>false</code> if the target is outside the limits. Nothing is silently clamped.</p>
+<h3 id="lift-driver">Driver control</h3>
+<ul class="bullets"><li><strong>R2 / L2:</strong> full power while held (<code>c.full_power_manual_jog = true</code>), stopping at the limits. Releasing holds the current height. <strong>Both together:</strong> hold.</li><li><strong>Left:</strong> return to 0. If the lift failed its startup check, pressing <strong>Left</strong> (with R2/L2 released) retries it and re-zeros. Put the lift at the bottom first.</li><li><strong>Claw:</strong> always send power through <code>lift::claw_driver_update()</code>. If it isn't called for 100 ms, the claw stops on its own.</li></ul>
+<h3 id="lift-gravity">Gravity compensation</h3>
+<pre data-copy><code>c.gravity = GravityModel::Constant;   <span class="tok-com">// or Cosine for an arm that swings through an angle</span>
+c.kg = <span class="tok-num">12</span>;                            <span class="tok-com">// motor power units (-127..127), measured</span></code></pre>
+<p><strong>Constant</strong> adds <code>kg</code> all the time (DR4B, cascade). <strong>Cosine</strong> uses <code>kg × cos(angle)</code> for a single arm; set <code>c.horizontal</code> and <code>c.degrees_per_motor_degree</code>. It's capped at 80% of max power by default.</p>
+<h3 id="lift-gains">Gain scheduling</h3>
+<pre data-copy><code>c.gains = {{<span class="tok-num">0</span>, <span class="tok-num">0.30</span>, <span class="tok-num">0</span>, <span class="tok-num">0.02</span>}, {<span class="tok-num">900</span>, <span class="tok-num">0.45</span>, <span class="tok-num">0</span>, <span class="tok-num">0.03</span>}};   <span class="tok-com">// {position, kp, ki, kd}</span></code></pre>
+<p>Gains blend smoothly between the points and hold the end values outside them. Positions must be in increasing order.</p>
+<h3 id="lift-settings">Main settings</h3>
+<table class="api-table"><thead><tr><th>Setting</th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td><code>kp</code>, <code>ki</code>, <code>kd</code></td><td>0.30, 0, 0.02</td><td>PID gains</td></tr><tr><td><code>max_height</code></td><td>0</td><td>Upper travel limit. <strong>You must set this.</strong></td></tr><tr><td><code>max_up_power</code>, <code>max_down_power</code></td><td>100, 80</td><td>Power caps</td></tr><tr><td><code>return_power</code></td><td>60</td><td>Down power cap when going to 0</td></tr><tr><td><code>tolerance</code></td><td>5</td><td>How close counts as arrived, in degrees</td></tr><tr><td><code>settle_ms</code></td><td>150</td><td>How long it must stay there</td></tr><tr><td><code>move_timeout_ms</code></td><td>4000</td><td>A move gives up after this long</td></tr><tr><td><code>slew_per_second</code></td><td>400</td><td>How fast power can change</td></tr><tr><td><code>encoder_disagreement</code></td><td>90</td><td>Max difference between the two motors before a fault. <code>0</code> turns it off.</td></tr></tbody></table>
+<p>Every setting is checked at startup. One bad value stops the lift from starting and shows <code>L: settings</code>.</p>
+<h3 id="lift-rotation">Optional rotation sensor</h3>
+<p>Set <code>LIFT_ROTATION_PORT</code> to an unused port and <code>LIFT_MOTOR_DEGREES_PER_SENSOR_DEGREE</code> to match your gearing. Keep all heights in motor degrees. If the sensor stops answering, the lift faults instead of guessing.</p>
+<h3 id="lift-faults">Faults</h3>
+<p>The lift stops itself (<code>L: FAULT</code>, motors braked) when a lift motor or sensor stops answering, the two motors disagree by more than <code>encoder_disagreement</code> for 150 ms (a slipped gear, say), or the settings are invalid. Fix the cause, then disable and re-enable the robot.</p>
+      </section>
+
+      <section class="doc-section" id="pistons" data-title="Claw &amp; pistons">
+        <h2>Claw &amp; pistons</h2>
+<h3 id="claw">Claw</h3>
+<p>The claw belongs to the lift task. In driver control send power with <code>lift::claw_driver_update(power)</code> every loop (<code>0</code> when no button is held). In autons use a <a class="ez-link" href="#sequences">sequence</a>. Don't call <code>claw.move()</code> yourself.</p>
+<h3 id="piston">Pistons</h3>
+<pre data-copy><code>ez::Piston <span class="tok-fn">clamp</span>(<span class="tok-str">'A'</span>);                 <span class="tok-com">// brain 3-wire port A</span>
+ez::Piston <span class="tok-fn">wing</span>(<span class="tok-str">'B'</span>, <span class="tok-num">5</span>);               <span class="tok-com">// port B on a 3-wire expander in smart port 5</span>
+ez::Piston <span class="tok-fn">hang</span>(<span class="tok-str">'C'</span>, <span class="tok-kw">true</span>);            <span class="tok-com">// starts with the pin high</span>
+
+clamp.<span class="tok-fn">set</span>(<span class="tok-kw">true</span>);                       <span class="tok-com">// extend (relative to its start state)</span>
+clamp.<span class="tok-fn">get</span>();                           <span class="tok-com">// last commanded state</span></code></pre>
+<p>To drive one from the controller, give it a button in <code>robot_controls.hpp</code> and add it to <code>DRIVER_ACTIONS</code> (and <code>DRIVER_ACTION_NAMES</code> in <code>robot_controls.cpp</code>) so the duplicate check covers it:</p>
+<pre data-copy><code><span class="tok-com">// robot_controls.hpp</span>
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> Button CLAMP_TOGGLE = btn::Y;
+
+<span class="tok-com">// src/main.cpp, inside the opcontrol loop</span>
+clamp.<span class="tok-fn">button_toggle</span>(C::<span class="tok-fn">held</span>(C::CLAMP_TOGGLE));   <span class="tok-com">// press to toggle</span></code></pre>
+<h3 id="piston-groups">Piston groups</h3>
+<pre data-copy><code>#include <span class="tok-str">"Reaper-Template/piston_group.hpp"</span>
+
+ez::Piston <span class="tok-fn">clamp_left</span>(<span class="tok-str">'A'</span>);
+ez::Piston <span class="tok-fn">clamp_right</span>(<span class="tok-str">'B'</span>);
+ez::PistonGroup clamp{{&amp;clamp_left, &amp;clamp_right}, <span class="tok-num">250</span>};   <span class="tok-com">// 250 ms to travel</span>
+
+clamp.<span class="tok-fn">set</span>(<span class="tok-kw">true</span>);
+clamp.<span class="tok-fn">status</span>().settled;   <span class="tok-com">// true once 250 ms have passed since the command</span></code></pre>
+<p>"Settled" is only a timer, since the cylinder has no sensor. Time your real stroke and use that number. Declare pistons as globals so they live for the whole program.</p>
+      </section>
+
+      <section class="doc-section" id="sequences" data-title="Sequences">
+        <h2>Sequences</h2>
+<p>A sequence runs lift, claw, piston and wait steps <strong>in order, in the background</strong>. While it runs it owns the lift and claw.</p>
+<pre data-copy><code><span class="tok-kw">using</span> lift::StepType;
+std::vector&lt;lift::SequenceStep&gt; score = {
+  <span class="tok-com">//  type,               value, duration_ms, timeout_ms, pistons</span>
+    {StepType::Claw,       <span class="tok-num">127</span>,   <span class="tok-num">300</span>,         <span class="tok-num">500</span>},              <span class="tok-com">// grab: 127 power for 300 ms</span>
+    {StepType::Lift,       <span class="tok-num">780</span>,   <span class="tok-num">0</span>,           <span class="tok-num">4500</span>},             <span class="tok-com">// raise to 780 (measured)</span>
+    {StepType::Pneumatic,  <span class="tok-num">1</span>,     <span class="tok-num">0</span>,           <span class="tok-num">1000</span>, &amp;clamp},     <span class="tok-com">// fire the group</span>
+    {StepType::Wait,       <span class="tok-num">0</span>,     <span class="tok-num">200</span>,         <span class="tok-num">400</span>},              <span class="tok-com">// pause 200 ms</span>
+    {StepType::Claw,      <span class="tok-num">-70</span>,    <span class="tok-num">250</span>,         <span class="tok-num">500</span>},              <span class="tok-com">// release</span>
+    {StepType::Lift,       <span class="tok-num">0</span>,     <span class="tok-num">0</span>,           <span class="tok-num">4500</span>},             <span class="tok-com">// back down</span>
 };
-chassis.<span class="tok-fn">pid_odom_set</span>(path);   <span class="tok-com">// injects + smooths points</span>
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
-        <p>Variants: <code>pid_odom_pp_set</code> (raw points), <code>pid_odom_injected_pp_set</code> (inject only), <code>pid_odom_smooth_pp_set</code> (inject + smooth). Smoothing rounds corners. For a hard stop at a point, use a separate point move.</p>
+
+<span class="tok-kw">if</span> (!lift::<span class="tok-fn">start_sequence</span>(score)) <span class="tok-kw">return</span>;   <span class="tok-com">// false = rejected (bad step)</span>
+<span class="tok-com">// ... the drive can move while this runs ...</span>
+<span class="tok-kw">if</span> (!lift::<span class="tok-fn">wait_sequence</span>(<span class="tok-num">15000</span>)) <span class="tok-kw">return</span>;    <span class="tok-com">// false = cancelled, timed out or faulted</span></code></pre>
+<table class="api-table"><thead><tr><th>Type</th><th><code>value</code></th><th><code>duration_ms</code></th><th>Done when</th></tr></thead><tbody><tr><td><code>Lift</code></td><td>Target height (within limits)</td><td>unused</td><td>The lift settles</td></tr><tr><td><code>Claw</code></td><td>Power, -127 to 127</td><td>Required, less than the timeout</td><td>The time is up</td></tr><tr><td><code>Pneumatic</code></td><td><code>1</code> = set, <code>0</code> = unset</td><td>unused</td><td>The group's travel time has passed</td></tr><tr><td><code>Wait</code></td><td>unused</td><td>Required, less than the timeout</td><td>The time is up</td></tr></tbody></table>
+<ul class="bullets"><li>Every step needs a <code>timeout_ms</code>. At most 64 steps. The whole sequence is checked before it starts, and one bad step rejects all of it.</li><li>Driver input on the lift or claw, <code>lift::hold_current()</code>, <code>lift::stop()</code>, <code>lift::cancel_sequence()</code>, a new <code>move_to()</code> or sequence, or disabling the robot cancels it.</li><li>When a sequence ends early, the claw stops and the lift holds. <strong>Pistons stay in their last state.</strong></li><li><code>lift::sequence_status()</code> tells you how it ended: <code>Idle</code>, <code>Running</code>, <code>Succeeded</code>, <code>Cancelled</code>, <code>TimedOut</code> or <code>Fault</code>.</li></ul>
       </section>
 
-      <!-- ==================== WAITS ==================== -->
-      <section class="doc-section" id="waits" data-title="Waits &amp; chaining">
-        <h2>Waits &amp; chaining</h2>
-        <table class="api-table">
-          <thead><tr><th>Wait</th><th>Continues when</th></tr></thead>
-          <tbody>
-            <tr><td><code>pid_wait()</code></td><td>The motion settles or an exit condition ends it</td></tr>
-            <tr><td><code>pid_wait_until(12_in)</code></td><td>An encoder drive reaches that distance from its start</td></tr>
-            <tr><td><code>pid_wait_until(45_deg)</code></td><td>A turn or swing crosses that absolute heading</td></tr>
-            <tr><td><code>pid_wait_quick()</code></td><td>The target is crossed, without the full settle delay</td></tr>
-            <tr><td><code>pid_wait_quick_chain()</code></td><td>Close enough to flow straight into the next command</td></tr>
-            <tr><td><code>pid_wait_until_index(i)</code></td><td>The path passes waypoint <code>i</code></td></tr>
-            <tr><td><code>pid_wait_until_point(p)</code></td><td>An odom motion passes a field point</td></tr>
-          </tbody>
-        </table>
-        <h3 id="checkpoint">Checkpoints</h3>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">36_in</span>, <span class="tok-num">100</span>);
-chassis.<span class="tok-fn">pid_wait_until</span>(<span class="tok-num">12_in</span>);   <span class="tok-com">// 12" in…</span>
-chassis.<span class="tok-fn">pid_speed_max_set</span>(<span class="tok-num">60</span>);  <span class="tok-com">// …slow down for the rest</span>
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
-        <h3 id="chaining">Chaining</h3>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">24_in</span>, <span class="tok-num">80</span>);
-chassis.<span class="tok-fn">pid_wait_quick_chain</span>();
-chassis.<span class="tok-fn">pid_turn_set</span>(<span class="tok-num">90_deg</span>, <span class="tok-num">80</span>);
-chassis.<span class="tok-fn">pid_wait</span>();   <span class="tok-com">// full wait at the end of the chain</span></code></pre>
-        <div class="callout"><b>Note</b><p>Returning from a wait doesn't prove the target was reached. It can also exit on timeout, velocity or interference. Check <code>chassis.interfered</code> where it matters.</p></div>
+      <section class="doc-section" id="roller" data-title="Roller">
+        <h2>Roller</h2>
+<p>A color roller with its <strong>own</strong> motor and optical sensor, run by its own background task. Every roller function is safe to call from anywhere. The sensor recognises <strong>red</strong>, <strong>yellow</strong> and <strong>blue</strong>, and the roller turns until your alliance color is in front of it. It never stops on yellow or the other alliance's color.</p>
+<ol class="steps"><li><strong>Set the ports</strong><p><code>ROLLER_MOTOR_PORT</code> (negative reverses it), <code>ROLLER_OPTICAL_PORT</code> and <code>ROLLER_POWER</code> (seek speed, 1-127) in <code>robot_hardware.hpp</code>.</p></li><li><strong>Pick your alliance</strong><p><strong>RED</strong> or <strong>BLUE</strong> on the brain's Routes page, or <code>roller::target_set(roller::Color::Blue)</code>.</p></li><li><strong>Check the colors</strong><p>The Motors page's second line becomes a live readout, e.g. <code>Optical: YELLOW  h52 s0.61 p140  [IDLE]</code>. Hold each color in front of the sensor and check it reads right.</p></li><li><strong>Adjust if needed</strong><p>Hue windows are in <code>include/Reaper-Template/roller_settings.hpp</code>. Defaults: red ≤ 20 or ≥ 340, yellow 40-75, blue 180-250, saturation ≥ 0.35, proximity ≥ 80.</p></li></ol>
+<p><strong>Driver control:</strong> hold <strong>A</strong> to roll to the alliance color and keep it there; release to stop.</p>
+<pre data-copy><code>roller::<span class="tok-fn">roll_to_target</span>(<span class="tok-num">1500</span>);   <span class="tok-com">// blocking: turn until alliance color, max 1.5 s. True if reached.</span>
+
+roller::<span class="tok-fn">seek</span>(<span class="tok-num">1500</span>);             <span class="tok-com">// non-blocking version...</span>
+<span class="tok-com">// ...drive somewhere...</span>
+roller::<span class="tok-fn">wait</span>();                 <span class="tok-com">// ...then wait for it. True if reached.</span>
+
+roller::<span class="tok-fn">maintain</span>();             <span class="tok-com">// keep defending the color until stop()/spin()/seek()</span>
+roller::<span class="tok-fn">maintain_for</span>(<span class="tok-num">1500</span>);     <span class="tok-com">// same, blocking, for 1.5 s, then stop</span>
+roller::<span class="tok-fn">spin</span>(<span class="tok-num">-60</span>);              <span class="tok-com">// plain power, no color logic</span>
+roller::<span class="tok-fn">stop</span>();</code></pre>
       </section>
 
-      <!-- ==================== POSE ==================== -->
-      <section class="doc-section" id="pose" data-title="Pose &amp; odometry">
-        <h2>Pose &amp; odometry</h2>
-        <p>Set the real start pose at the top of a route if it isn't <code>0, 0, 0</code>. Pose setters change the estimate; they don't move the robot.</p>
-<pre data-copy><code>chassis.<span class="tok-fn">odom_xyt_set</span>(<span class="tok-num">36_in</span>, <span class="tok-num">36_in</span>, <span class="tok-num">90_deg</span>);
-chassis.<span class="tok-fn">pid_odom_set</span>(ez::united_odom{{<span class="tok-num">60_in</span>, <span class="tok-num">36_in</span>}, ez::fwd, <span class="tok-num">70</span>});
-chassis.<span class="tok-fn">pid_wait</span>();</code></pre>
-        <table class="api-table">
-          <thead><tr><th>Function</th><th>Purpose</th></tr></thead>
-          <tbody>
-            <tr><td><code>odom_xyt_set(x, y, h)</code></td><td>Set the full pose</td></tr>
-            <tr><td><code>odom_xy_set(x, y)</code></td><td>Set position only</td></tr>
-            <tr><td><code>odom_x_get()</code> / <code>odom_y_get()</code> / <code>odom_theta_get()</code></td><td>Read the pose</td></tr>
-            <tr><td><code>drive_angle_set(angle)</code></td><td>Set IMU heading and heading target together</td></tr>
-            <tr><td><code>drive_sensor_left()</code> / <code>drive_sensor_right()</code></td><td>Drivetrain distance in inches</td></tr>
-          </tbody>
-        </table>
-        <div class="callout warn"><b>With MCL on</b><p><code>(0, 0)</code> must be the <strong>field center</strong>, not your starting corner.</p></div>
+      <section class="doc-section" id="localization" data-title="Localization">
+        <h2>Localization</h2>
+<p>Odometry drifts: wheels slip, and every turn adds a little error. Reaper uses up to four distance sensors that see the field walls to pull the robot's X/Y position back to the truth while it drives. It's a particle filter (Monte Carlo localization) of 200 guesses at where the robot is, each scored by how well it explains the readings. Heading still comes from the IMU.</p>
+<h3 id="coordinates">Coordinates</h3>
+<ul class="bullets"><li>The field center is <code>(0, 0)</code>. +X is right, +Y is forward as you face the field from your starting side.</li><li>Headings are clockwise from +Y, in degrees.</li><li>These match EZ-Template's odometry, so <code>chassis.odom_xyt_set()</code> and <code>chassis.pid_odom_set()</code> line up with the corrections.</li></ul>
+<h3 id="loc-setup">Setup</h3>
+<pre data-copy><code><span class="tok-com">//                                         port, x,    y,    heading, scale</span>
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> localization::Mount DISTANCE_FRONT{ <span class="tok-num">7</span>,  <span class="tok-num">0.0</span>,  <span class="tok-num">6.5</span>,    <span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>};
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> localization::Mount DISTANCE_RIGHT{ <span class="tok-num">8</span>,  <span class="tok-num">5.5</span>,  <span class="tok-num">0.0</span>,   <span class="tok-num">90.0</span>, <span class="tok-num">1.0</span>};
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> localization::Mount DISTANCE_BACK { <span class="tok-num">0</span>,  <span class="tok-num">0.0</span>,  <span class="tok-num">0.0</span>,  <span class="tok-num">180.0</span>, <span class="tok-num">1.0</span>};  <span class="tok-com">// not fitted</span>
+<span class="tok-kw">static</span> <span class="tok-kw">constexpr</span> localization::Mount DISTANCE_LEFT { <span class="tok-num">9</span>, <span class="tok-num">-5.5</span>,  <span class="tok-num">0.0</span>,  <span class="tok-num">270.0</span>, <span class="tok-num">1.0</span>};</code></pre>
+<p>Measure carefully: an inch of mounting error becomes an inch of position error. With all four ports at <code>0</code>, localization doesn't run.</p>
+<h3 id="loc-behavior">How it behaves</h3>
+<ul class="bullets"><li>It runs every 10 ms and corrects the pose about every 30 ms.</li><li>Readings over 60 in, or with the sensor more than 30° off square to the wall, are ignored. A sensor reading the exact same value twice in a row is skipped.</li><li>Readings are lined up with where the robot was <code>DISTANCE_SENSOR_DELAY_MS</code> ago.</li><li>Setting the pose (or the reset at the start of <code>autonomous()</code>) re-centers the filter.</li><li>Readings below <code>DISTANCE_MIN_CONFIDENCE</code> (60 by default) are ignored. Lower it a little if good walls get ignored a lot; <code>0</code> turns it off.</li></ul>
       </section>
 
-      <!-- ==================== TUNING ==================== -->
-      <section class="doc-section" id="tuning" data-title="Tuning constants">
-        <h2>Tuning constants</h2>
-        <p>Shared PID, exit and slew settings live in <code>default_constants()</code>. Gains are <code>P, I, D, start_I</code>.</p>
-<pre data-copy><code><span class="tok-kw">void</span> <span class="tok-fn">default_constants</span>() {
-  chassis.<span class="tok-fn">pid_drive_constants_set</span>(<span class="tok-num">5.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>);
-  chassis.<span class="tok-fn">pid_heading_constants_set</span>(<span class="tok-num">5.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>);
-  chassis.<span class="tok-fn">pid_turn_constants_set</span>(<span class="tok-num">4.8</span>, <span class="tok-num">0.0</span>, <span class="tok-num">5.3</span>, <span class="tok-num">0.0</span>);
-  chassis.<span class="tok-fn">pid_swing_constants_set</span>(<span class="tok-num">5.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>);
-
-  <span class="tok-com">// small error, small-error time, big error, big-error time, velocity, current</span>
-  chassis.<span class="tok-fn">pid_drive_exit_condition_set</span>(<span class="tok-num">90_ms</span>, <span class="tok-num">1_in</span>, <span class="tok-num">250_ms</span>, <span class="tok-num">3_in</span>, <span class="tok-num">500_ms</span>, <span class="tok-num">500_ms</span>);
-  chassis.<span class="tok-fn">pid_turn_exit_condition_set</span>(<span class="tok-num">90_ms</span>, <span class="tok-num">3_deg</span>, <span class="tok-num">250_ms</span>, <span class="tok-num">7_deg</span>, <span class="tok-num">500_ms</span>, <span class="tok-num">500_ms</span>);
-
-  <span class="tok-com">// how close pid_wait_quick_chain() needs to be before moving on</span>
-  chassis.<span class="tok-fn">pid_drive_chain_constant_set</span>(<span class="tok-num">5_in</span>);
-  chassis.<span class="tok-fn">pid_turn_chain_constant_set</span>(<span class="tok-num">5_deg</span>);
-
-  chassis.<span class="tok-fn">slew_drive_constants_set</span>(<span class="tok-num">3_in</span>, <span class="tok-num">50</span>);
-  chassis.<span class="tok-fn">odom_turn_bias_set</span>(<span class="tok-num">0.9</span>);
-  chassis.<span class="tok-fn">odom_look_ahead_set</span>(<span class="tok-num">7_in</span>);
-  chassis.<span class="tok-fn">odom_boomerang_distance_set</span>(<span class="tok-num">16_in</span>);
-  chassis.<span class="tok-fn">pid_angle_behavior_set</span>(ez::shortest);
+      <section class="doc-section" id="wall-resets" data-title="Wall resets">
+        <h2>Wall resets</h2>
+<p>When the robot is stopped against or facing a wall, you can snap one axis to it:</p>
+<pre data-copy><code>chassis.<span class="tok-fn">pid_wait</span>();
+vmp::<span class="tok-fn">wait_quiet</span>(<span class="tok-num">600</span>);                                       <span class="tok-com">// until the robot is really still (or 600 ms)</span>
+<span class="tok-kw">if</span> (!localization::<span class="tok-fn">distance_reset</span>(localization::Sensor::left, <span class="tok-num">150</span>)) {   <span class="tok-com">// average for 150 ms</span>
+  <span class="tok-fn">printf</span>(<span class="tok-str">"reset refused: %s\n"</span>,
+         localization::<span class="tok-fn">reset_result_name</span>(localization::<span class="tok-fn">last_reset_result</span>()));
 }</code></pre>
-        <ol class="steps">
-          <li><strong>Raise kP</strong><p>Until the robot oscillates around the target, then back off a little.</p></li>
-          <li><strong>Add kD</strong><p>Until the oscillation damps out and it settles fast.</p></li>
-          <li><strong>Add kI only if needed</strong><p>If it consistently stops just short. Keep it small.</p></li>
-        </ol>
+<p>The second number is how long to average for; the <strong>median</strong> of the readings is used. Leave it out for a single instant reading. A reset is refused if it would move the robot more than <code>DISTANCE_RESET_MAX_JUMP</code> (12 in by default).</p>
+<table class="api-table"><thead><tr><th>Result</th><th>Meaning</th><th>Try</th></tr></thead><tbody><tr><td><code>NoReading</code></td><td>Sensor unplugged, out of range, or not confident</td><td>Check the port; aim squarely at a plain wall</td></tr><tr><td><code>TooFewReadings</code></td><td>Fewer than 3 good readings while averaging</td><td>Average longer, or check the sensor</td></tr><tr><td><code>Unsteady</code></td><td>Readings spread over 1 inch</td><td>Make sure the view to the wall is clear</td></tr><tr><td><code>RobotMoved</code></td><td>The robot moved while averaging</td><td>Wait for <code>vmp::wait_quiet()</code> first</td></tr><tr><td><code>Blocked</code></td><td>A field element in <code>field_map.hpp</code> is in the way</td><td>Use a different wall or sensor</td></tr><tr><td><code>Refused</code></td><td>Not square, not settled, or the jump was too big</td><td>Square up to the wall, wait longer</td></tr><tr><td><code>NotRunning</code></td><td>No distance sensors configured</td><td>Set the ports in <code>robot_hardware.hpp</code></td></tr></tbody></table>
+<p>Without a drive IMU, <code>wait_quiet</code> returns at once, so use <code>pros::delay(80)</code> instead.</p>
       </section>
 
-      <!-- ==================== MECHANISMS ==================== -->
-      <section class="doc-section" id="mechanisms" data-title="Mechanisms in auton">
-        <h2>Mechanisms in auton</h2>
-        <p>The lift has its own task, so it can move while the chassis drives. <code>chassis.pid_wait()</code> only waits for the drive. Use <code>lift::wait_until_settled()</code> for the lift.</p>
-<pre data-copy><code><span class="tok-kw">if</span> (!lift::<span class="tok-fn">move_to</span>(<span class="tok-num">200.0</span>)) <span class="tok-kw">return</span>;      <span class="tok-com">// motor degrees, measure your own height</span>
-chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">24_in</span>, <span class="tok-num">70</span>);
+      <section class="doc-section" id="field-map" data-title="Field map">
+        <h2>Field map</h2>
+<p>Goals, loaders and barriers sit in front of the walls. List them in <strong><code>include/field_map.hpp</code></strong> and localization ignores any sensor whose beam would pass near one, both in the background filter and in wall resets (which then return <code>Blocked</code>).</p>
+<pre data-copy><code>map.margin = <span class="tok-num">2.0</span>;                 <span class="tok-com">// clearance around every obstacle, inches</span>
+
+map.circles = {                   <span class="tok-com">// round things: {x, y, radius}</span>
+    {<span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">5.0</span>},
+    {<span class="tok-num">21.0</span>, <span class="tok-num">47.5</span>, <span class="tok-num">4.0</span>},
+};
+map.segments = {                  <span class="tok-com">// straight things: {x1, y1, x2, y2}</span>
+    {<span class="tok-num">-24.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">24.0</span>, <span class="tok-num">0.0</span>},
+};</code></pre>
+<p>It ships <strong>empty</strong> because the elements depend on the game. Use the same coordinates as your routes, take positions from the game manual's field drawings, and check them on a real field. Include every element <strong>taller than your sensors are mounted</strong>; the beam passes over anything lower.</p>
+      </section>
+
+      <section class="doc-section" id="vmp" data-title="VMP">
+        <h2>VMP</h2>
+<p>VMP watches up to three IMUs 100 times a second. It <strong>only watches</strong>: it never calibrates or resets an IMU and never moves a motor.</p>
+<table class="api-table"><thead><tr><th>Question</th><th>Where you see it</th><th>From code</th></tr></thead><tbody><tr><td>Is the robot still?</td><td>Sensors page <code>quiet</code></td><td><code>vmp::is_quiet()</code>, <code>vmp::wait_quiet(ms)</code></td></tr><tr><td>Did it just get hit?</td><td>Sensors page <code>hits</code> / <code>peak</code></td><td><code>vmp::impact_since(t)</code>, <code>vmp::last_impact()</code></td></tr><tr><td>Is it tipping?</td><td>Sensors page <code>tilt</code>, controller <code>!TIPPING</code></td><td><code>vmp::warning()</code></td></tr><tr><td>Is the lift swaying?</td><td>Lift card, controller <code>!LIFT SWAY</code></td><td><code>vmp::warning()</code></td></tr></tbody></table>
+<p>Tuning is in <code>include/Reaper-Template/vmp_settings.hpp</code>. <strong>Start the program with the robot flat on the field</strong>: the first time it sits still becomes "flat" for the tilt reading.</p>
+<h3 id="vmp-tuning">Tuning with the Sensors page</h3>
+<ol class="steps"><li><strong>Still</strong><p>Park the robot. Cards should go <code>quiet</code> within a second. If not, raise <code>QUIET_ACCEL_G</code> / <code>QUIET_GYRO_DPS</code> a little.</p></li><li><strong>Hits</strong><p>Watch <code>peak</code> while driving normally, then while bumping a wall gently. Set <code>IMPACT_G</code> between the two.</p></li><li><strong>Tipping</strong><p>Lean the robot by hand and watch <code>tilt</code>. <code>TIP_WARN_DEG</code> starts the warning, <code>TIP_CLEAR_DEG</code> stops it.</p></li><li><strong>Lift sway</strong><p>Raise the lift, stop hard, and watch the lift card's <code>rot</code>. Set <code>SWAY_GYRO_DPS</code> just under the bad-sway number.</p></li></ol>
+<h3 id="vmp-autons">In autons</h3>
+<pre data-copy><code><span class="tok-kw">const</span> <span class="tok-kw">auto</span> t = pros::<span class="tok-fn">millis</span>();
+chassis.<span class="tok-fn">pid_drive_set</span>(<span class="tok-num">24_in</span>, <span class="tok-num">110</span>);
 chassis.<span class="tok-fn">pid_wait</span>();
-<span class="tok-kw">if</span> (!lift::<span class="tok-fn">wait_until_settled</span>()) <span class="tok-kw">return</span>;
-<span class="tok-com">// score here</span>
-lift::<span class="tok-fn">return_to_start</span>();</code></pre>
-        <p><code>roller::maintain_for(ms)</code> holds the roller on the selected color for a set time.</p>
+<span class="tok-kw">if</span> (vmp::<span class="tok-fn">impact_since</span>(t)) {
+  <span class="tok-com">// something hit us during that move: re-check position, back off, etc.</span>
+}</code></pre>
+<p><strong>Driver warnings:</strong> when tipping or sway starts, the controller rumbles once, shows <code>!TIPPING 18deg</code> or <code>!LIFT SWAY</code>, and the drive is capped at <code>TIP_DRIVE_SPEED_LIMIT</code> / <code>SWAY_DRIVE_SPEED_LIMIT</code> until it clears (<code>127</code> for no cap). For 300 ms after a hit, localization keeps running but doesn't apply corrections.</p>
       </section>
 
-      <!-- ==================== MCL ==================== -->
-      <section class="doc-section" id="mcl" data-title="MCL">
-        <h2>MCL</h2>
-        <p>Reaper's Monte Carlo localization uses distance sensors against the field walls to correct odometry's X/Y drift. Heading still comes from the IMUs. There's one pose, and EZ's motion control uses it.</p>
-        <h3 id="mcl-config">Configure sensors</h3>
-        <p>In <code>robot_hardware.hpp</code>, each distance sensor is a <code>localization::Mount</code>: <code>{port, x, y, heading, scale}</code>. Port 0 disables a sensor, and if all four are 0, MCL stays off.</p>
-<pre data-copy><code><span class="tok-com">//                                   port, x,   y,   heading, scale</span>
-<span class="tok-kw">static constexpr</span> localization::Mount DISTANCE_FRONT{<span class="tok-num">11</span>, <span class="tok-num">0.0</span>, <span class="tok-num">6.0</span>,   <span class="tok-num">0.0</span>, <span class="tok-num">1.0</span>};
-<span class="tok-kw">static constexpr</span> localization::Mount DISTANCE_RIGHT{<span class="tok-num">12</span>, <span class="tok-num">5.0</span>, <span class="tok-num">0.0</span>,  <span class="tok-num">90.0</span>, <span class="tok-num">1.0</span>};
-<span class="tok-kw">static constexpr</span> localization::Mount DISTANCE_BACK {<span class="tok-num">0</span>,  <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">180.0</span>, <span class="tok-num">1.0</span>};
-<span class="tok-kw">static constexpr</span> localization::Mount DISTANCE_LEFT {<span class="tok-num">0</span>,  <span class="tok-num">0.0</span>, <span class="tok-num">0.0</span>, <span class="tok-num">270.0</span>, <span class="tok-num">1.0</span>};
-<span class="tok-kw">static constexpr double</span> FIELD_HALF_SIZE = <span class="tok-num">70.25</span>;             <span class="tok-com">// center to wall, in inches</span>
-<span class="tok-kw">static constexpr unsigned</span> DISTANCE_SENSOR_DELAY_MS = <span class="tok-num">40</span>;
-<span class="tok-kw">static constexpr double</span> DISTANCE_RESET_MAX_JUMP = <span class="tok-num">12.0</span>;     <span class="tok-com">// biggest wall-reset correction</span></code></pre>
-        <p><code>main.cpp</code> starts localization with these settings at startup. Leave <code>scale</code> at <code>1.0</code> unless a sensor reads consistently long or short.</p>
-        <ul class="bullets">
-          <li>Measure from the robot's <strong>turning center to the sensor face</strong>. X is right, Y is forward, and angles are clockwise (front 0, right 90, back 180, left 270).</li>
-          <li><code>(0, 0)</code> is the field center, and heading 0 faces +Y.</li>
-          <li>Corrections are capped at 0.15" per update, and they're skipped while turning fast or when readings disagree.</li>
-          <li>Readings outside 1.5–60" are ignored.</li>
-        </ul>
+      <section class="doc-section" id="diagnostics" data-title="Terminal &amp; motor monitor">
+        <h2>Terminal &amp; motor monitor</h2>
+<p>Open the PROS terminal (<code>pros terminal</code>) with the brain or controller plugged in. Reaper's messages start with a tag:</p>
+<table class="api-table"><thead><tr><th>Message</th><th>Meaning</th></tr></thead><tbody><tr><td><code>[Reaper] Reaper 1.0 beta ... initializing...</code></td><td>Normal startup. Confirms the version you uploaded.</td></tr><tr><td><code>[Lift] &lt;reason&gt;</code></td><td>The lift failed a startup check. See <a class="ez-link" href="#troubleshooting">Troubleshooting</a>.</td></tr><tr><td><code>[VMP] Invalid/duplicate ports ...</code></td><td>Check the IMU ports.</td></tr><tr><td><code>[Reaper] Localization configuration rejected.</code></td><td>A distance sensor setting is out of range, or two sensors share a port.</td></tr><tr><td><code>[Reaper] Test auton started / finished / cancelled.</code></td><td>Down + B was used.</td></tr><tr><td><code>[Roller] Sees RED (hue 8, sat 0.71, prox 150)</code></td><td>The roller's sensor settled on a new color.</td></tr><tr><td><code>[Roller] Optical sensor on port N is not responding.</code></td><td>Check the optical sensor cable / port.</td></tr></tbody></table>
+<h3 id="motor-monitor">Motor monitor</h3>
+<p>A background task checks every configured motor's connection and temperature and feeds the brain's <a class="ez-link" href="#motors-page">Motors page</a>.</p>
+<pre data-copy><code><span class="tok-kw">for</span> (<span class="tok-kw">const</span> <span class="tok-kw">auto</span>&amp; m : motor_monitor::<span class="tok-fn">snapshot</span>())
+  <span class="tok-fn">printf</span>(<span class="tok-str">"%s port %d %.0f C\n"</span>, m.name.<span class="tok-fn">c_str</span>(), m.port, m.temperature);</code></pre>
+<p><strong>Two IMUs:</strong> EZ-Template compares them. If they disagree by more than 15° (<code>chassis.imu_drift_threshold_set()</code>), it flags the drift.</p>
       </section>
 
-      <!-- ==================== DSR ==================== -->
-      <section class="doc-section" id="dsr" data-title="Distance sensor reset">
-        <h2>Distance sensor reset</h2>
-        <p>DSR snaps one coordinate to a wall using a single sensor reading. Stop the robot first. It needs a clear view of the wall.</p>
-<pre data-copy><code>chassis.<span class="tok-fn">pid_targets_reset</span>();
-chassis.<span class="tok-fn">drive_mode_set</span>(ez::DISABLE, <span class="tok-kw">true</span>);
-chassis.<span class="tok-fn">drive_set</span>(<span class="tok-num">0</span>, <span class="tok-num">0</span>);
-pros::<span class="tok-fn">delay</span>(<span class="tok-num">200</span>);
-
-<span class="tok-kw">bool</span> applied = localization::<span class="tok-fn">distance_reset</span>(localization::Sensor::front);
-<span class="tok-com">// also Sensor::right, ::back, ::left. If false, the pose is unchanged.</span>
-
-<span class="tok-kw">const auto</span> pose = localization::<span class="tok-fn">getPose</span>();   <span class="tok-com">// same pose EZ uses</span></code></pre>
+      <section class="doc-section" id="troubleshooting" data-title="Troubleshooting">
+        <h2>Troubleshooting</h2>
+<h3 id="ts-build">Building and uploading</h3>
+<table class="api-table"><thead><tr><th>Problem</th><th>Fix</th></tr></thead><tbody><tr><td><code>pros</code> command not found</td><td>Use the PROS terminal from the VS Code sidebar, or reinstall the PROS extension.</td></tr><tr><td>Build errors right after unzipping</td><td>Make sure the folder you opened contains <code>project.pros</code>. Run <code>pros make clean</code>, then <code>pros make</code>.</td></tr><tr><td>Strange build errors in a OneDrive folder</td><td>Move the project out of OneDrive (or any synced folder).</td></tr><tr><td>Upload can't find the brain</td><td>Try another cable or USB port, and close anything else using the brain.</td></tr></tbody></table>
+<h3 id="ts-robot">Robot</h3>
+<table class="api-table"><thead><tr><th>Problem</th><th>Fix</th></tr></thead><tbody><tr><td>Nothing moves</td><td>The ports are probably still <code>0</code>. Set them in <code>robot_hardware.hpp</code>.</td></tr><tr><td>Robot spins when you push forward</td><td>One side is reversed. Flip the signs of that side's ports.</td></tr><tr><td>One motor fights the others</td><td>That single motor's sign is wrong.</td></tr><tr><td>Heading goes the wrong way</td><td>The IMU is mounted upside down or sideways. Mount it flat.</td></tr><tr><td>Can't select a route</td><td>The robot is enabled by a field controller, or a route is running.</td></tr><tr><td>Down + B does nothing</td><td>It only works with <strong>no</strong> field controller or competition switch connected.</td></tr><tr><td>Joystick feels different after Left, Right, Y or A</td><td>Those buttons also change EZ-Template's joystick curve. See <a class="ez-link" href="#button-map">Driver controls</a>.</td></tr></tbody></table>
+<h3 id="ts-lift">Lift messages</h3>
+<table class="api-table"><thead><tr><th>Message</th><th>Cause / fix</th></tr></thead><tbody><tr><td><code>L: settings</code></td><td>A value in <code>lift_settings.hpp</code> is invalid.</td></tr><tr><td><code>L: preset</code></td><td>A preset is outside 0…<code>max_height</code>.</td></tr><tr><td><code>L: rot config</code> / <code>L: rot sensor</code></td><td>Rotation sensor port taken or invalid, or no valid reading.</td></tr><tr><td><code>L: left units</code> / <code>brake</code> / <code>encoder</code></td><td>The motor answered, but a setup command failed. Reseat the cable.</td></tr><tr><td>Lift won't go up in a <code>move_to</code></td><td><code>max_height</code> is still 0, or the target is above it.</td></tr><tr><td>Lift goes up forever with R2</td><td><code>allow_unbounded_jog</code> is still <code>true</code>.</td></tr><tr><td>Heights change between runs</td><td>The lift wasn't at the bottom when the program started.</td></tr></tbody></table>
+<p>Once you've fixed a lift problem, put the lift at the bottom and press <strong>Left</strong> (with R2/L2 released) to retry, or restart the program.</p>
       </section>
 
-      <!-- ==================== SETTINGS ==================== -->
-      <section class="doc-section" id="settings" data-title="Settings">
-        <h2>Settings</h2>
-        <p>Most belong in <code>default_constants()</code>. A change made inside a route lasts until it's changed again.</p>
-        <table class="api-table">
-          <thead><tr><th>Setting</th><th>Effect</th></tr></thead>
-          <tbody>
-            <tr><td><code>pid_speed_max_set(speed)</code></td><td>Cap the current motion's power</td></tr>
-            <tr><td><code>pid_*_constants_set(...)</code></td><td>Drive, heading, turn, swing, odom angular and boomerang gains</td></tr>
-            <tr><td><code>pid_*_exit_condition_set(...)</code></td><td>When drive, turn, swing and odom moves count as done</td></tr>
-            <tr><td><code>pid_*_chain_constant_set(...)</code></td><td>How early a chained move hands off</td></tr>
-            <tr><td><code>slew_*_constants_set(dist, min)</code></td><td>Ramp up at the start of a move</td></tr>
-            <tr><td><code>pid_angle_behavior_set(b)</code></td><td><code>ez::shortest</code>, <code>longest</code>, <code>left_turn</code>, <code>right_turn</code>, <code>raw</code></td></tr>
-            <tr><td><code>odom_turn_bias_set(v)</code></td><td>Turning vs. driving priority in odom moves (max 1.0)</td></tr>
-            <tr><td><code>odom_look_ahead_set(d)</code></td><td>Pure pursuit look-ahead</td></tr>
-            <tr><td><code>odom_boomerang_distance_set(d)</code></td><td>Max boomerang lead distance</td></tr>
-            <tr><td><code>odom_boomerang_dlead_set(v)</code></td><td>Boomerang lead scaling</td></tr>
-            <tr><td><code>drive_brake_set(mode)</code></td><td><code>MOTOR_BRAKE_COAST</code>, <code>_BRAKE</code> or <code>_HOLD</code></td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <!-- ==================== CREDITS ==================== -->
       <section class="doc-section" id="credits" data-title="Credits &amp; help">
         <h2>Credits &amp; help</h2>
-        <p>Reaper started as an edited version of <a class="ez-link" href="https://ez-robotics.github.io/EZ-Template/" target="_blank" rel="noopener">EZ-Template</a> and grew from there. Thank you to the EZ-Robotics team. Some features are adapted from RW-Template.</p>
-        <ul class="bullets">
-          <li><strong><a class="ez-link" href="https://github.com/AlexBryan1/LightLib" target="_blank" rel="noopener">LightLib</a></strong> by Alex Bryan, for helping with parts of the auton selector.</li>
-          <li><strong>EZ-Template</strong> source is covered by MPL-2.0 (<code>LICENSE.md</code>).</li>
-          <li><strong>RW-Template</strong>-derived files keep their MIT notice (<code>licenses/RW-Template.txt</code>).</li>
-        </ul>
-        <div class="callout"><b>Need help?</b><p>Email <a class="ez-link" href="mailto:notzaron@gmail.com">notzaron@gmail.com</a> or find Okimzaron on Discord.</p></div>
-
-        <nav class="pager" aria-label="More">
-          <a href="../"><span>Back to</span><b>← Reaper home</b></a>
-          <a class="next" href="https://zaronworks.online/"><span>Return to</span><b>Portfolio →</b></a>
-        </nav>
+<p>Reaper is created and maintained by <strong>Za'Ron Lee</strong> (4588G Gambit). It started as an edited version of <a class="ez-link" href="https://ez-robotics.github.io/EZ-Template/" target="_blank" rel="noopener">EZ-Template</a> and grew from there. Thank you to the EZ-Robotics team.</p>
+<table class="api-table"><thead><tr><th>Project</th><th>Author</th><th>License</th></tr></thead><tbody><tr><td><a class="ez-link" href="https://github.com/EZ-Robotics/EZ-Template" target="_blank" rel="noopener">EZ-Template</a>, EZ-Units</td><td>EZ-Robotics</td><td>MPL-2.0</td></tr><tr><td>RW-Template</td><td>Richard Wang</td><td>MIT</td></tr><tr><td><a class="ez-link" href="https://github.com/purduesigbots/pros" target="_blank" rel="noopener">PROS</a>, OkapiLib</td><td>Purdue SIGBots</td><td>MPL-2.0</td></tr><tr><td><a class="ez-link" href="https://github.com/lvgl/lvgl" target="_blank" rel="noopener">LVGL</a></td><td>LVGL Kft</td><td>MIT</td></tr><tr><td><a class="ez-link" href="https://github.com/LemLib/LemLib" target="_blank" rel="noopener">LemLib</a></td><td>Liam Teale and contributors</td><td>MIT</td></tr></tbody></table>
+<p>Thanks also to <a class="ez-link" href="https://github.com/AlexBryan1/LightLib" target="_blank" rel="noopener">LightLib</a> by Alex Bryan, for helping with parts of the auton selector.</p>
+<p>Reaper is released under the Mozilla Public License 2.0. The full license texts are in the <code>licenses/</code> folder, and <code>CREDITS.md</code> on <a class="ez-link" href="https://github.com/okimzaron/Reaperlib" target="_blank" rel="noopener">GitHub</a> says exactly what came from where. If you fork Reaper, keep <code>LICENSE.md</code>, <code>CREDITS.md</code>, <code>licenses/</code> and the header at the top of each file.</p>
+<div class="callout"><b>Need help?</b><p>Email <a class="ez-link" href="mailto:notzaron@gmail.com">notzaron@gmail.com</a>, find Okimzaron on Discord, or <a class="ez-link" href="https://github.com/okimzaron/Reaperlib/issues" target="_blank" rel="noopener">open an issue on GitHub</a>. Include your Reaper version, PROS kernel version (<code>pros conduct info-project</code>), what you expected, what happened, and the terminal output.</p></div>
+<nav class="pager" aria-label="More"><a href="../"><span>Back to</span><b>← Reaper home</b></a><a class="next" href="https://zaronworks.online/"><span>Return to</span><b>Portfolio →</b></a></nav>
       </section>
     </main>
 
