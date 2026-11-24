@@ -1,0 +1,9 @@
+EZ-Units (include/EZ-Units/units.hpp)
+Part of EZ-Robotics' EZ-Template project.
+
+A modified version of Benjamin Jurke's 2015 compile-time unit checking work:
+https://benjaminjurke.com/content/articles/2015/compile-time-numerical-unit-dimension-checking/
+Derived from OkapiLib's units implementation (Purdue SIGBots, MPL-2.0):
+https://github.com/purduesigbots/OkapiLib/tree/master/include/okapi/api/units
+
+License: Mozilla Public License, version 2.0 (MPL-2.0). Full text: licenses/MPL-2.0.txt

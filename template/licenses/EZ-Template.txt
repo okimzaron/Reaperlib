@@ -1,0 +1,14 @@
+EZ-Template
+https://github.com/EZ-Robotics/EZ-Template
+Docs: https://ez-robotics.github.io/EZ-Template/
+Used by: Reaper is built on EZ-Template 4.0.0-beta.4. The drive code, PID, odometry,
+pure pursuit, exit conditions, auton selector, piston, SD card and utility code under
+include/Reaper-Template/ and src/Reaper-Template/ come from EZ-Template, with Reaper's
+changes applied.
+
+License: Mozilla Public License, version 2.0 (MPL-2.0).
+Full text: licenses/MPL-2.0.txt (also LICENSE.md at the project root).
+
+MPL-2.0 is a file-level license. Files that came from EZ-Template keep their MPL-2.0
+header, stay under MPL-2.0 when modified, and their source must stay available to
+anyone you distribute Reaper to.

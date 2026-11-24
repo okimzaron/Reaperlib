@@ -1,0 +1,10 @@
+PROS kernel 4.2.2 (Purdue SIGBots)
+https://github.com/purduesigbots/pros
+Used by: include/pros/, include/api.h, common.mk, firmware/libpros.a, firmware/*.ld
+
+"Unless otherwise specified, PROS 4.0 is distributed under the Mozilla Public License
+Version 2.0." Full text: licenses/MPL-2.0.txt
+
+PROS includes FreeRTOS (MIT license) and links against newlib's libc/libm
+(firmware/libc.a, firmware/libm.a), which carry their own permissive licenses.
+See the PROS repository (src/rtos/LICENSE) and the newlib project for those terms.

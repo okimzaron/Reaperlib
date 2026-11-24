@@ -1,0 +1,390 @@
+/*
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
+
+#include "Reaper-Template/drive/drive.hpp"
+#include "Reaper-Template/tracking_wheel.hpp"
+#include "Reaper-Template/util.hpp"
+
+// using namespace ez;
+
+namespace ez {
+// Sets and gets
+void Drive::odom_x_set(double x) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  ++localization_epoch_;
+
+  odom_current.x = x;
+  l_pose.x = x;
+  r_pose.x = x;
+  central_pose.x = x;
+  xy_last_pose.x = x;  // a pose set is not movement, see ez_tracking_task()
+  was_odom_just_set = true;
+}
+void Drive::odom_x_set(ez::QLength p_x) { odom_x_set(p_x.convert(ez::inch)); }
+void Drive::odom_y_set(double y) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  ++localization_epoch_;
+
+  odom_current.y = y;
+  l_pose.y = y;
+  r_pose.y = y;
+  central_pose.y = y;
+  xy_last_pose.y = y;  // a pose set is not movement, see ez_tracking_task()
+  was_odom_just_set = true;
+}
+void Drive::odom_y_set(ez::QLength p_y) { odom_y_set(p_y.convert(ez::inch)); }
+void Drive::odom_theta_set(double a) { drive_angle_set(a); }
+void Drive::odom_theta_set(ez::QAngle p_a) { odom_theta_set(p_a.convert(ez::degree)); }
+void Drive::drive_width_set(double input) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+
+  global_track_width = fabs(input);
+  if (input != 0.0) {
+    odom_ime_track_width_left = -(global_track_width / 2.0);
+    odom_ime_track_width_right = (global_track_width / 2.0);
+    return;
+  }
+  odom_ime_track_width_left = 0.0;
+  odom_ime_track_width_right = 0.0;
+}
+void Drive::drive_width_set(ez::QLength p_input) { drive_width_set(p_input.convert(ez::inch)); }
+void Drive::odom_xy_set(double x, double y) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  odom_x_set(x);
+  odom_y_set(y);
+}
+void Drive::odom_xy_set(ez::QLength p_x, ez::QLength p_y) { odom_xy_set(p_x.convert(ez::inch), p_y.convert(ez::inch)); }
+void Drive::odom_xyt_set(double x, double y, double t) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  odom_x_set(x);
+  odom_y_set(y);
+  odom_theta_set(t);
+}
+void Drive::odom_xyt_set(ez::QLength p_x, ez::QLength p_y, ez::QAngle p_t) {
+  odom_xyt_set(p_x.convert(ez::inch), p_y.convert(ez::inch), p_t.convert(ez::degree));
+}
+void Drive::odom_pose_set(pose itarget) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  odom_x_set(itarget.x);
+  odom_y_set(itarget.y);
+  // ANGLE_NOT_SET means "leave the heading alone" everywhere else a pose is consumed
+  // (pid_odom_set uses it to pick boomerang vs not), so it has to mean that here too.
+  if (itarget.theta != ANGLE_NOT_SET) odom_theta_set(itarget.theta);
+}
+void Drive::odom_pose_set(united_pose itarget) { odom_pose_set(util::united_pose_to_pose(itarget)); }
+void Drive::odom_reset() { odom_pose_set({0.0, 0.0, 0.0}); }
+void Drive::odom_enable(bool input) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  odometry_enabled = input;
+}
+bool Drive::odom_enabled() { return odometry_enabled; }
+
+double Drive::odom_x_get() { return odom_current.x; }
+double Drive::odom_y_get() { return odom_current.y; }
+double Drive::odom_theta_get() { return odom_current.theta; }
+pose Drive::odom_pose_get() { return odom_current; }
+double Drive::drive_width_get() { return global_track_width; }
+
+// Set tracking task
+// void Drive::odom_tracking_set(void (*tracking_task)()) { tracking = tracking_task; }
+void Drive::odom_tracking_set(std::function<void(void)> tracking_task) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  tracking = tracking_task;
+  tracking_is_custom = true;  // drive_defaults_set() sets this back to false for EZ-Template's own tracking
+  tracking_resync_pending = false;
+  xy_last_pose_valid = false;  // the new function's first pose may be in a different frame, so that pass measures no movement
+}
+
+std::pair<float, float> Drive::decide_vert_sensor(ez::tracking_wheel* tracker, bool is_tracker_enabled, float ime, float ime_track) {
+  float current = ime;
+  float track_width = ime_track;
+  if (is_tracker_enabled) {
+    current = tracker->get();
+    track_width = tracker->distance_to_center_get();
+  }
+
+  return {current, track_width};
+}
+
+ez::pose Drive::solve_xy_vert(float p_track_width, float current_t, float delta_vert, float delta_t) {
+  pose output = {0.0, 0.0, 0.0};
+
+  // Figure out how far we've actually moved
+  float local_x = delta_vert;
+  float half_delta_t = 0.0;
+  if (delta_t != 0) {
+    half_delta_t = delta_t / 2.0;
+    float i = std::sin(half_delta_t) * 2.0;
+    local_x = (delta_vert / delta_t - p_track_width) * i;
+  }
+
+  float alpha = current_t - half_delta_t;
+  float x = std::cos(alpha) * local_x;
+  float y = std::sin(alpha) * local_x;
+
+  // xy is calculated internally using math standard but translated to what's intuitive
+  // where going forward from 0 degrees increases Y
+  output.x = -y;
+  output.y = x;
+
+  return output;
+}
+
+ez::pose Drive::solve_xy_horiz(float p_track_width, float current_t, float delta_horiz, float delta_t) {
+  pose output = {0.0, 0.0, 0.0};
+
+  // Figure out how far we've actually moved
+  float local_y = delta_horiz;
+  float half_delta_t = 0.0;
+  if (delta_t != 0) {
+    half_delta_t = delta_t / 2.0;
+    float i = std::sin(half_delta_t) * 2.0;
+    local_y = (delta_horiz / delta_t + p_track_width) * i;
+  }
+
+  float alpha = current_t - half_delta_t;
+  float x = -std::sin(alpha) * local_y;
+  float y = std::cos(alpha) * local_y;
+
+  // xy is calculated internally using math standard but translated to what's intuitive
+  // where going forward from 0 degrees increases Y
+  output.x = -y;
+  output.y = x;
+
+  return output;
+}
+
+// Primes the "last" sensor values to the current readings, without touching
+// any of the accumulated pose data. Used whenever tracking is (re)started so
+// the next tracking pass computes a real delta instead of jumping by however
+// much the sensors accumulated while tracking was paused/disabled.
+void Drive::tracking_prime() {
+  // Decide on using a horiz tracker vs not
+  ez::tracking_wheel* h_sensor = odom_tracker_back != nullptr ? odom_tracker_back : odom_tracker_front;
+  bool h_tracker_enabled = h_sensor == odom_tracker_back ? odom_tracker_back_enabled : odom_tracker_front_enabled;
+  std::pair<float, float> h_cur_and_track = decide_vert_sensor(h_sensor, h_tracker_enabled);
+  h_last = h_cur_and_track.first;
+
+  // Decide on left ime vs left tracker
+  std::pair<float, float> l_cur_and_track = decide_vert_sensor(odom_tracker_left, odom_tracker_left_enabled, drive_sensor_left(), odom_ime_track_width_left);
+  l_last = l_cur_and_track.first;
+
+  // Decide on right ime vs right tracker
+  std::pair<float, float> r_cur_and_track =
+      decide_vert_sensor(odom_tracker_right, odom_tracker_right_enabled, drive_sensor_right(), odom_ime_track_width_right);
+  r_last = r_cur_and_track.first;
+
+  // Angle, matching the sign convention used in tracking_wheels_tracking()
+  t_last = -ez::util::to_rad(drive_angle_get());
+
+  // A pause in tracking or a sensor reset moves nothing: the pose stays where it is, so the next pass measures from it
+  // and counts only what the robot moves from here on.
+  xy_last_pose = odom_current;
+  xy_last_pose_valid = std::isfinite(odom_current.x) && std::isfinite(odom_current.y) && std::isfinite(odom_current.theta);
+  xy_pose_delta = {0.0, 0.0, 0.0};
+}
+
+// Tracking based on https://wiki.purduesigbots.com/software/odometry
+void Drive::tracking_wheels_tracking() {
+  // Decide on using a horiz tracker vs not
+  ez::tracking_wheel* h_sensor = odom_tracker_back != nullptr ? odom_tracker_back : odom_tracker_front;
+  bool h_tracker_enabled = h_sensor == odom_tracker_back ? odom_tracker_back_enabled : odom_tracker_front_enabled;
+  std::pair<float, float> h_cur_and_track = decide_vert_sensor(h_sensor, h_tracker_enabled);
+  float h_current = h_cur_and_track.first;
+  float h_track_width = h_cur_and_track.second;
+  // Calculate velocity based on horiz value
+  float h_ = h_current - h_last;
+  h_last = h_current;
+
+  // Decide on left ime vs left tracker
+  std::pair<float, float> l_cur_and_track = decide_vert_sensor(odom_tracker_left, odom_tracker_left_enabled, drive_sensor_left(), odom_ime_track_width_left);
+  float l_current = l_cur_and_track.first;
+  float l_track_width = l_cur_and_track.second;
+  // Calculate velocity based on left value
+  float l_ = l_current - l_last;
+  l_last = l_current;
+
+  // Decide on right ime vs right tracker
+  std::pair<float, float> r_cur_and_track =
+      decide_vert_sensor(odom_tracker_right, odom_tracker_right_enabled, drive_sensor_right(), odom_ime_track_width_right);
+  float r_current = r_cur_and_track.first;
+  float r_track_width = r_cur_and_track.second;
+  // Calculate velocity based on left value
+  float r_ = r_current - r_last;
+  r_last = r_current;
+
+  // Angle and velocity
+  float t_current = -ez::util::to_rad(drive_angle_get());  // negative for math standard
+  float t_ = t_current - t_last;
+  t_last = t_current;
+
+  pose h_pose_ = solve_xy_horiz(h_track_width, t_current, h_, t_);
+  pose l_pose_ = solve_xy_vert(l_track_width, t_current, l_, t_);
+  pose r_pose_ = solve_xy_vert(r_track_width, t_current, r_, t_);
+
+  r_pose.x += r_pose_.x;
+  r_pose.y += r_pose_.y;
+  r_pose.x += h_pose_.x;
+  r_pose.y += h_pose_.y;
+
+  l_pose.x += l_pose_.x;
+  l_pose.y += l_pose_.y;
+  l_pose.x += h_pose_.x;
+  l_pose.y += h_pose_.y;
+
+  // Track width of 0, but the delta is avg of l+r
+  double avg = l_ + r_;
+  if (avg != 0.0) avg /= 2.0;
+  pose central_pose_ = solve_xy_vert(0.0, t_current, avg, t_);
+  central_pose.x += central_pose_.x;
+  central_pose.y += central_pose_.y;
+  central_pose.x += h_pose_.x;
+  central_pose.y += h_pose_.y;
+
+  // If there is a single vert tracker, use it
+  if (odom_tracker_left_enabled != odom_tracker_right_enabled) {
+    if (odom_tracker_left_enabled) {
+      odom_current.x = l_pose.x;
+      odom_current.y = l_pose.y;
+    } else {
+      odom_current.x = r_pose.x;
+      odom_current.y = r_pose.y;
+    }
+  }
+  // Two vert trackers, average their poses.  Each one is already corrected with its own distance to center,
+  // averaging the raw wheel deltas instead is only right when both trackers sit the same distance from it.
+  else if (odom_tracker_left_enabled && odom_tracker_right_enabled) {
+    odom_current.x = (l_pose.x + r_pose.x) / 2.0;
+    odom_current.y = (l_pose.y + r_pose.y) / 2.0;
+  }
+  // No vert trackers, the drive sides are symmetric so use central xy
+  else {
+    odom_current.x = central_pose.x;
+    odom_current.y = central_pose.y;
+  }
+
+  odom_current.theta = drive_angle_get();
+
+  // printf("odom_ime_track_width_left %f   l_ %f   r_ %f   t_current %f\n", odom_ime_track_width_left, r_, t_, t_current);
+
+  // printf("left (%.2f, %.2f)", l_pose.x, l_pose.y);
+  // printf("   right (%.2f, %.2f)", r_pose.x, r_pose.y);
+  // printf("   current used (%.2f, %.2f, %.2f)      l delta: %.2f   r delta: %.2f", odom_current.x, odom_current.y, odom_current.theta, l_, r_);
+  // printf("        htw: %f\n", h_track_width);
+}
+
+void Drive::ez_tracking_task() {
+  // Don't let this function run if odom is disabled
+  // and prime the "lasts" to the current sensor values
+  if (!imu_calibration_complete || !odometry_enabled) {
+    tracking_prime();
+    odom_velocity_ = {0.0, 0.0, 0.0};
+    odom_velocity_primed_ = false;
+    return;
+  }
+
+  // EZ-Template's own tracking was just put back after a custom tracking function (drive_defaults_set()).  Its own poses
+  // and last sensor readings are from before the custom tracker ran: everything the robot drove since would be counted
+  // twice or lost.  Pick up from where the custom tracker left the pose instead.  One pass of movement is lost doing this.
+  if (tracking_resync_pending && !tracking_is_custom) {
+    // A custom tracker that lost its signal (a GPS, say) may have left a non-finite pose: copying that would leave odom non-finite
+    // for good, so pick up from the last finite pose it wrote instead.
+    pose from = std::isfinite(odom_current.x) && std::isfinite(odom_current.y) ? odom_current : xy_last_finite_pose;
+    l_pose.x = r_pose.x = central_pose.x = from.x;
+    l_pose.y = r_pose.y = central_pose.y = from.y;
+    odom_current.x = from.x;
+    odom_current.y = from.y;
+    tracking_prime();
+    tracking_resync_pending = false;
+  }
+
+  // Use ez's tracking or a custom tracking function made by the user
+  tracking();
+
+  // How far the robot moved this pass, from its own pose.  ptp_task() turns this into xyPID's sensor.
+  // odom_x_set() and odom_y_set() move xy_last_pose along with the pose, so a pose set (odom_xyt_set(), a
+  // relocalization every pass, ...) never counts as movement, while what the robot really moved since then still does.
+  // A heading set changes no x or y, so the same holds for drive_angle_set().
+  // A custom tracking function may write its own pose over a pose set (a GPS, for example), and then the jump back
+  // would look like movement.  So with custom tracking, the pass after a pose set counts as no movement instead.
+  // (A custom tracking function that sets the pose with odom_x_set() / odom_y_set() itself reads no movement at all.)
+  pose now = odom_pose_get();
+  bool finite = std::isfinite(now.x) && std::isfinite(now.y) && std::isfinite(now.theta);
+  if (!xy_last_pose_valid || !finite || (was_odom_just_set && tracking_is_custom))
+    xy_pose_delta = {0.0, 0.0, 0.0};
+  else
+    xy_pose_delta = {now.x - xy_last_pose.x, now.y - xy_last_pose.y, 0.0};
+  if (!std::isfinite(xy_pose_delta.x) || !std::isfinite(xy_pose_delta.y)) xy_pose_delta = {0.0, 0.0, 0.0};
+  odom_velocity_update(xy_pose_delta, now.theta);
+  localization_motion_x_ += xy_pose_delta.x;
+  localization_motion_y_ += xy_pose_delta.y;
+  was_odom_just_set = false;
+  xy_last_pose = now;
+  xy_last_pose_valid = finite;
+  if (finite) xy_last_finite_pose = now;
+}
+// Robot speed from this pass's movement. xy_pose_delta already leaves out pose resets; a heading jump bigger
+// than any robot can turn in one pass (drive_angle_set) is treated the same way.
+void Drive::odom_velocity_update(const pose& delta, double theta) {
+  const std::uint32_t now_ms = pros::millis();
+  const std::uint32_t dt_ms = now_ms - odom_velocity_ms_;
+  const double last_theta = odom_velocity_last_theta_;
+  odom_velocity_ms_ = now_ms;
+  odom_velocity_last_theta_ = theta;
+  if (!odom_velocity_primed_ || dt_ms == 0 || dt_ms > 100 || !std::isfinite(theta)) {
+    odom_velocity_primed_ = std::isfinite(theta);
+    return;
+  }
+  const double dt = dt_ms / 1000.0;
+  double turn = (theta - last_theta) / dt;
+  if (!std::isfinite(turn) || std::fabs(turn) > 2000.0) turn = odom_velocity_.theta;  // heading was set, not turned
+  const double alpha = 1.0 - std::exp(-static_cast<double>(dt_ms) / 50.0);  // ~50 ms smoothing
+  odom_velocity_.x += alpha * (delta.x / dt - odom_velocity_.x);
+  odom_velocity_.y += alpha * (delta.y / dt - odom_velocity_.y);
+  odom_velocity_.theta += alpha * (turn - odom_velocity_.theta);
+}
+
+pose Drive::odom_velocity_get() {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  return odom_velocity_;
+}
+
+pose Drive::odom_velocity_local_get() {
+  pose field, current;
+  {
+    ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+    field = odom_velocity_;
+    current = odom_current;
+  }
+  const double t = util::to_rad(current.theta);  // clockwise from +Y
+  // forward = (sin t, cos t), right = (cos t, -sin t)
+  return {field.x * std::cos(t) - field.y * std::sin(t), field.x * std::sin(t) + field.y * std::cos(t), field.theta};
+}
+
+pose Drive::odom_pose_estimate(int ms) {
+  pose v, p;
+  {
+    ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+    v = odom_velocity_;
+    p = odom_current;
+  }
+  const double s = ms / 1000.0;
+  return {p.x + v.x * s, p.y + v.y * s, p.theta + v.theta * s};
+}
+
+Drive::LocalizationSample Drive::localization_sample() {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  return {odom_current, localization_motion_x_, localization_motion_y_,
+          localization_epoch_, pros::millis(), imu_calibration_complete && odometry_enabled};
+}
+bool Drive::localization_correct(std::uint32_t epoch, double dx, double dy, bool recenter) {
+  ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
+  if (epoch != localization_epoch_ || !std::isfinite(dx) || !std::isfinite(dy)) return false;
+  odom_xy_set(odom_current.x + dx, odom_current.y + dy);
+  localization_epoch_ = epoch + (recenter ? 1u : 0u);
+  return true;
+}
+}  // namespace ez
