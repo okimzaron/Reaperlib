@@ -1,7 +1,7 @@
 #include <array>
 #include "team_theme.hpp"
 
-// 4588G Gambit's logo: the example logo for src/team/. Replace it with your own (docs/brain-screen.md).
+// 4588G Gambit's logo: the example logo for src/team/. Replace it with your own (https://reaperlib.online/docs/#brain-screen).
 // Embedded RGB565 image, no SD card required.
 namespace {
 alignas(4) constexpr uint8_t pixels[] = {

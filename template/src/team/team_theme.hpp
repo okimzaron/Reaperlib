@@ -8,7 +8,7 @@
 // To make it yours, replace the name, colors and logo below. Edit the SETTINGS section, then rebuild/upload.
 // Nothing outside src/team/ needs changing.
 // The startup splash is Reaper's and stays as it is; everything after it (Home, Routes, Motors, Sensors)
-// uses the name, logo and colors below. Step-by-step guide: docs/brain-screen.md.
+// uses the name, logo and colors below. Step-by-step guide: https://reaperlib.online/docs/#brain-screen.
 //
 // Colors are 0xRRGGBB hex, the same codes any online color picker gives you (drop the '#').
 
@@ -25,7 +25,7 @@ namespace team_theme {
 inline constexpr const char* TEAM_NAME = "4588G GAMBIT";
 
 // Team logo on the Home page, centered at the top. Up to about 400 x 200 pixels. nullptr = show TEAM_NAME.
-// To use your own: convert it with the LVGL image converter (see docs/brain-screen.md), put the file in
+// To use your own: convert it with the LVGL image converter (see https://reaperlib.online/docs/#brain-screen), put the file in
 // src/team/, and change "gambit_logo" to its name here and in the extern "C" block above.
 inline const lv_image_dsc_t* const LOGO = &gambit_logo;
 

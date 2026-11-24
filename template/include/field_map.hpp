@@ -4,7 +4,7 @@
 // FIELD MAP FOR LOCALIZATION
 // List the field elements that can block a distance sensor's view of the wall: goals, loaders, barriers.
 // Localization then ignores any sensor whose beam would pass near one of them. Edit the SETTINGS section for
-// your game, rebuild, upload. Guide and measuring tips: docs/localization.md ("Field map").
+// your game, rebuild, upload. Guide and measuring tips: https://reaperlib.online/docs/#field-map.
 //
 // Coordinates: inches from the field center, +X right and +Y forward as seen from your starting side (the
 // same frame as chassis.odom_xyt_set()). Take positions from your game manual's field drawings, then check

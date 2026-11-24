@@ -26,7 +26,7 @@ reworked stuck detection.
 
 The scythe splash art and the 4588G Gambit logo belong to 4588G Gambit. If you use
 Reaper for your own team, swap in your own logo (see
-[Brain screen](docs/brain-screen.md)).
+[Brain screen](https://reaperlib.online/docs/#brain-screen)).
 
 ## How licensing works here
 

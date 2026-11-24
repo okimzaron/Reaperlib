@@ -31,7 +31,7 @@
   name, logo, every dashboard color) and the logo image. Ships filled in for 4588G
   Gambit as an example. The Reaper splash is unchanged. The logo is centered
   whatever its size, and the two-tone Gambit logo follows the theme colors.
-  Guide in `docs/brain-screen.md`.
+  Guide: https://reaperlib.online/docs/#brain-screen
 - The first match route is a plain `match_01` placeholder again.
 
 **Controls**
@@ -69,6 +69,10 @@
 - Field map (`include/field_map.hpp`): circles and segments for goals, loaders and
   barriers. Sensors whose beam would pass one before the wall are skipped by the
   filter and by wall resets (`Blocked`). Ships empty; fill it in for your game.
+
+**Docs**
+- The guides moved to the website, https://reaperlib.online/docs/. The `docs/` folder is gone and every
+  link in the template points to the matching section there.
 
 **Code**
 - Reformatted the lift, localization, VMP and piston-group code for readability

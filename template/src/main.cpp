@@ -152,7 +152,7 @@ void autonomous() {
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
-  chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Routes should set their real field position (see docs/autons.md)
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Routes should set their real field position (see https://reaperlib.online/docs/#autons)
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold. This helps autonomous consistency
 
   lift::enable();

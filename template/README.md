@@ -35,24 +35,26 @@ Created by Za'Ron Lee, 4588G Gambit.
 4. Write your autons in `src/routes/match_routes.cpp` and `src/routes/skills_routes.cpp`.
 5. Build and upload: `pros mu`.
 
-The full walkthrough is in [Getting started](docs/getting-started.md).
+The full walkthrough is in [Installation](https://reaperlib.online/docs/#installation) on the website.
 
 ## Documentation
 
+The guides live on the website: **<https://reaperlib.online/docs/>**
+
 | Guide | Covers |
 | --- | --- |
-| [Getting started](docs/getting-started.md) | Install, configure, upload, and a first-boot checklist |
-| [Hardware configuration](docs/hardware-config.md) | Every setting in `robot_hardware.hpp` |
-| [Driver controls](docs/controls.md) | Button map, the controller screen, Down + B testing |
-| [Writing autons](docs/autons.md) | Routes, the selector, PID constants, motion basics |
-| [Brain screen](docs/brain-screen.md) | Splash, dashboard pages, your team's name, logo and colors (`src/team/`) |
-| [Lift](docs/lift.md) | Calibration, presets, gravity compensation, gain scheduling |
-| [Mechanisms](docs/mechanisms.md) | Claw, pistons, piston groups, sequences, roller |
-| [Localization](docs/localization.md) | Distance sensors, wall resets, tracking wheels |
-| [VMP](docs/vmp.md) | IMU stillness, hit detection, tipping and lift-sway warnings, the Sensors page |
-| [Diagnostics](docs/diagnostics.md) | Motor monitor, console messages |
-| [Troubleshooting](docs/troubleshooting.md) | Common problems and fixes |
-| [Architecture](docs/architecture.md) | How Reaper works inside, for anyone changing the template |
+| [Installation](https://reaperlib.online/docs/#installation) | Install, build, upload |
+| [First boot checklist](https://reaperlib.online/docs/#first-boot) | What to check the first time you power up |
+| [Hardware configuration](https://reaperlib.online/docs/#hardware) | Every setting in `robot_hardware.hpp` |
+| [Driver controls](https://reaperlib.online/docs/#controls) | Button map (`robot_controls.hpp`), the controller screen, Down + B testing |
+| [Brain screen](https://reaperlib.online/docs/#brain-screen) | Splash, dashboard pages, your team's name, logo and colors (`src/team/`) |
+| [Writing autons](https://reaperlib.online/docs/#autons) | Routes, the selector, motions, tuning |
+| [Lift](https://reaperlib.online/docs/#lift) | Calibration, presets, gravity compensation, gain scheduling |
+| [Claw & pistons](https://reaperlib.online/docs/#pistons) / [Sequences](https://reaperlib.online/docs/#sequences) / [Roller](https://reaperlib.online/docs/#roller) | Mechanisms |
+| [Localization](https://reaperlib.online/docs/#localization) | Distance sensors, [wall resets](https://reaperlib.online/docs/#wall-resets), the [field map](https://reaperlib.online/docs/#field-map) |
+| [VMP](https://reaperlib.online/docs/#vmp) | IMU stillness, hit detection, tipping and lift-sway warnings, the Sensors page |
+| [Terminal & motor monitor](https://reaperlib.online/docs/#diagnostics) | Motor monitor, console messages |
+| [Troubleshooting](https://reaperlib.online/docs/#troubleshooting) | Common problems and fixes |
 
 For drive motions and tuning, EZ-Template's own docs apply directly:
 <https://ez-robotics.github.io/EZ-Template/>
@@ -70,7 +72,6 @@ src/routes/                     <- your match and skills routes
 src/team/                       <- your team name, logo and dashboard colors (4588G example)
 src/Reaper-Template/            <- template source
 sd-card/                        <- optional SD card files (selected auton, joystick curves)
-docs/                           <- these guides
 licenses/                       <- licenses for everything Reaper builds on
 ```
 
