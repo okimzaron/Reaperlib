@@ -1,4 +1,7 @@
 #pragma once
+
+// [Reaper, idea from RCL-Tracking] Field map geometry with no VEX calls: does a sensor's beam pass a
+// goal or barrier before it reaches the wall? Your obstacles go in include/field_map.hpp.
 #include <algorithm>
 #include <cmath>
 #include <vector>

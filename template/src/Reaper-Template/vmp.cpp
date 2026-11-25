@@ -1,3 +1,5 @@
+// [Reaper] VMP task. See vmp.hpp for what it watches and how to use it.
+
 #include "Reaper-Template/vmp.hpp"
 
 #include <atomic>
@@ -5,13 +7,14 @@
 #include <cstdio>
 
 #include "Reaper-Template/lock.hpp"
+#include "Reaper-Template/subsystems.hpp"  // chassis, for settle()
 #include "Reaper-Template/vmp_settings.hpp"
 #include "pros/imu.h"
 #include "pros/rtos.hpp"
 
 namespace vmp {
 namespace {
-constexpr int DRIVE_SLOTS = 2;  // slots 0 and 1; slot 2 is the lift IMU
+constexpr int DRIVE_SLOTS = 2;  // slots 0 and 1 = IMU 1 and IMU 2 (chassis); slot 2 = lift IMU
 constexpr int LIFT_SLOT = 2;
 
 std::array<int, 3> ports_{{0, 0, 0}};
@@ -188,6 +191,15 @@ bool wait_quiet(std::uint32_t timeout_ms) {
       return false;
     pros::delay(10);
   }
+}
+
+bool settle(std::uint32_t timeout_ms) {
+  chassis.pid_wait();  // the PID's exit conditions: the motion is over as far as the encoders/heading know
+  if (!task_ || (!drive_slot_used(0) && !drive_slot_used(1))) {
+    pros::delay(80);  // no chassis IMU to ask: a short fixed pause instead
+    return false;
+  }
+  return wait_quiet(timeout_ms);  // the robot has actually stopped rocking
 }
 
 Impact last_impact() {

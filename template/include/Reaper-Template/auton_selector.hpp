@@ -1,6 +1,10 @@
 /* This Source Code Form is subject to the Mozilla Public License, v. 2.0.
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 #pragma once
+
+// [Reaper] Touch dashboard (Home, Routes, Motors, Sensors) built on EZ-Template's auton selector.
+// EZ's route list and SD card saving are kept; the screens are Reaper's. Colours and logo: src/team/.
+// Guide: https://reaperlib.online/docs/#brain-screen
 #include <atomic>
 #include "Reaper-Template/touch_gate.hpp"
 #include <vector>
@@ -43,6 +47,8 @@ class AutonSelector {
   lv_obj_t *sensors_panel_ = nullptr, *sensors_warning_ = nullptr, *tilt_zero_button_ = nullptr;
   struct SensorCard { lv_obj_t *box, *title, *body; };
   std::array<SensorCard, 3> sensor_cards_{};
+  std::array<int, 3> sensor_slots_{};  // VMP slot shown on each card (only IMUs with a port get a card)
+  int sensor_count_ = 0;
   void build_sensors_page(int width, int height);
   void refresh_sensors();
   static void tilt_zero_cb(lv_event_t* event);

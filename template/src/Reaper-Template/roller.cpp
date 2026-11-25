@@ -1,3 +1,5 @@
+// [Reaper] Colour roller task. See roller.hpp for what it does and how to use it.
+
 #include "Reaper-Template/roller.hpp"
 
 #include <algorithm>

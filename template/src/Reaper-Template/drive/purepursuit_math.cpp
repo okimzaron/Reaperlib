@@ -155,7 +155,7 @@ std::vector<odom> Drive::inject_points(std::vector<ez::odom> imovements, std::ve
         pose new_point = util::vector_off_point(SPACING * (j + 1), {input[i].target.x, input[i].target.y, angle_to_point});
 
         // A one time flag to stop points from being injected for LOOK_AHEAD from current
-        // https://github.com/EZ-Robotics/Reaper-Template/issues/152
+        // https://github.com/EZ-Robotics/EZ-Template/issues/152
         if (util::distance_to_point(new_point, input[0].target) >= odom_look_ahead_get()) allow_injecting = true;
 
         // If the new point is basically the same as the parent point, remove it to save 10ms delay
@@ -230,7 +230,7 @@ std::vector<odom> Drive::smooth_path(std::vector<odom> ipath, double weight_smoo
     bool dont_touch_this_point = false;
 
     // A one time flag to stop points from being smoothed for LOOK_AHEAD from current
-    // https://github.com/EZ-Robotics/Reaper-Template/issues/152
+    // https://github.com/EZ-Robotics/EZ-Template/issues/152
     if (util::distance_to_point(ipath[i].target, ipath[0].target) > odom_look_ahead_get() && !allow_injecting) allow_injecting = true;
 
     // if (t <= odom_look_ahead_get() / SPACING && (prev_point_angle_not_set || t != 0)))

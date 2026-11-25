@@ -1,4 +1,6 @@
 #pragma once
+
+// [Reaper] Roller colour logic with no VEX calls: hue/saturation -> Red / Yellow / Blue, plus a debounce.
 #include <cmath>
 #include <cstdint>
 

@@ -31,7 +31,7 @@
   name, logo, every dashboard color) and the logo image. Ships filled in for 4588G
   Gambit as an example. The Reaper splash is unchanged. The logo is centered
   whatever its size, and the two-tone Gambit logo follows the theme colors.
-  Guide in `docs/brain-screen.md`.
+  Guide: https://reaperlib.online/docs/#brain-screen
 - The first match route is a plain `match_01` placeholder again.
 
 **Controls**
@@ -43,9 +43,12 @@
 - Brain **Sensors** page (S): per-IMU state, shake, rotation jitter, windowed peak,
   hit count and tilt, plus a Zero tilt button.
 - `vmp::wait_quiet()` / `is_quiet()` for waiting until the robot is really still.
+- `vmp::settle(ms)`: `chassis.pid_wait()` and `wait_quiet()` in one call, for wall resets.
+- IMU ports renamed to `IMU_1_PORT` / `IMU_2_PORT` (chassis) and `LIFT_IMU_PORT`. The
+  Sensors page only shows IMUs that have a port, one wide card or two/three side by side.
 - Hit detection: `vmp::impact_since()`, `vmp::last_impact()`. The peak reading is now
   "biggest jolt in the last 2 s" instead of growing forever.
-- Tipping (drive IMUs, mount-independent tilt) and lift-sway (lift IMU) warnings:
+- Tipping (IMU 1 / IMU 2, mount-independent tilt) and lift-sway (lift IMU) warnings:
   controller rumble, `!TIPPING` / `!LIFT SWAY` on the controller, optional drive
   speed cap. Localization pauses corrections briefly after a hit.
 - All thresholds in the new `vmp_settings.hpp`.
@@ -69,6 +72,10 @@
 - Field map (`include/field_map.hpp`): circles and segments for goals, loaders and
   barriers. Sensors whose beam would pass one before the wall are skipped by the
   filter and by wall resets (`Blocked`). Ships empty; fill it in for your game.
+
+**Docs**
+- The guides moved to the website, https://reaperlib.online/docs/. The `docs/` folder is gone and every
+  link in the template points to the matching section there.
 
 **Code**
 - Reformatted the lift, localization, VMP and piston-group code for readability

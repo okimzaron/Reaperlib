@@ -1,4 +1,9 @@
 #pragma once
+
+// [Reaper] Localization: keeps the robot's X/Y honest with distance sensors aimed at the field walls.
+// Runs RW-Template's particle filter (rw/mcl.cpp) in a background task and gently nudges EZ's odometry.
+// Wall resets (distance_reset) snap one axis to a wall on demand.
+// Sensor ports and positions: robot_hardware.hpp. Guide: https://reaperlib.online/docs/#localization
 #include "Reaper-Template/localization_core.hpp"
 #include "Reaper-Template/drive/drive.hpp"
 namespace localization {
@@ -9,7 +14,7 @@ void set_pose(Pose pose);
 Pose getPose();
 Diagnostics diagnostics();
 
-// Snap one axis of the position to a wall seen by `sensor`. The robot must be stopped (vmp::wait_quiet() is
+// Snap one axis of the position to a wall seen by `sensor`. The robot must be stopped (vmp::settle() is
 // the easy way). False means rejected; last_reset_result() says why.
 //
 // average_ms = 0 uses a single reading. Above 0, readings are collected for that long (at the sensor's update

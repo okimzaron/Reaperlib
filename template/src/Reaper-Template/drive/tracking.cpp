@@ -328,6 +328,7 @@ void Drive::ez_tracking_task() {
 }
 // Robot speed from this pass's movement. xy_pose_delta already leaves out pose resets; a heading jump bigger
 // than any robot can turn in one pass (drive_angle_set) is treated the same way.
+// [Reaper] Odometry velocity (idea from LemLib): smoothed X/Y/heading speed from each odometry step.
 void Drive::odom_velocity_update(const pose& delta, double theta) {
   const std::uint32_t now_ms = pros::millis();
   const std::uint32_t dt_ms = now_ms - odom_velocity_ms_;
@@ -375,6 +376,7 @@ pose Drive::odom_pose_estimate(int ms) {
   return {p.x + v.x * s, p.y + v.y * s, p.theta + v.theta * s};
 }
 
+// [Reaper] Localization hooks (used by localization.cpp).
 Drive::LocalizationSample Drive::localization_sample() {
   ez::KillSafeGuard<pros::RecursiveMutex> lock(drive_mutex);
   return {odom_current, localization_motion_x_, localization_motion_y_,

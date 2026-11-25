@@ -1,4 +1,7 @@
 #pragma once
+
+// [Reaper] Every driver button in one place (see SETTINGS below). Two actions on one button fail the
+// build. Guide: https://reaperlib.online/docs/#controls
 #include "pros/misc.h"
 
 namespace ez {

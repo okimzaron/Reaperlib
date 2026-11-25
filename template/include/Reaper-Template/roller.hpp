@@ -1,4 +1,8 @@
 #pragma once
+
+// [Reaper] Colour roller: one motor plus one optical sensor. Rolls until the selected alliance colour
+// (red or blue) faces the sensor, and never stops on yellow. Its own task is the only code that moves the motor.
+// Ports: robot_hardware.hpp. Colour thresholds: roller_settings.hpp. Guide: https://reaperlib.online/docs/#roller
 #include <cstdint>
 #include "Reaper-Template/roller_core.hpp"
 

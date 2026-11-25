@@ -1,19 +1,21 @@
+// [Reaper] Builds the devices from robot_hardware.hpp and checks those settings when you build.
+
 #include "main.h"
 
 RobotHardware robot;
 
-std::vector<int> RobotHardware::drive_imu_ports() {
+std::vector<int> RobotHardware::imu_ports() {
   std::vector<int> ports;
-  if (DRIVE_IMU_1_PORT != 0) ports.push_back(DRIVE_IMU_1_PORT);
-  if (DRIVE_IMU_2_PORT != 0) ports.push_back(DRIVE_IMU_2_PORT);
+  if (IMU_1_PORT != 0) ports.push_back(IMU_1_PORT);
+  if (IMU_2_PORT != 0) ports.push_back(IMU_2_PORT);
   return ports;
 }
-static_assert(RobotHardware::DRIVE_IMU_1_PORT >= 0 && RobotHardware::DRIVE_IMU_1_PORT <= 21,
-              "DRIVE_IMU_1_PORT must be 0 (disabled) or 1..21.");
-static_assert(RobotHardware::DRIVE_IMU_2_PORT >= 0 && RobotHardware::DRIVE_IMU_2_PORT <= 21,
-              "DRIVE_IMU_2_PORT must be 0 (disabled) or 1..21.");
-static_assert(RobotHardware::DRIVE_IMU_1_PORT == 0 || RobotHardware::DRIVE_IMU_1_PORT != RobotHardware::DRIVE_IMU_2_PORT,
-              "The two drivetrain IMUs need different ports.");
+static_assert(RobotHardware::IMU_1_PORT >= 0 && RobotHardware::IMU_1_PORT <= 21,
+              "IMU_1_PORT must be 0 (not used) or 1..21.");
+static_assert(RobotHardware::IMU_2_PORT >= 0 && RobotHardware::IMU_2_PORT <= 21,
+              "IMU_2_PORT must be 0 (not used) or 1..21.");
+static_assert(RobotHardware::IMU_1_PORT == 0 || RobotHardware::IMU_1_PORT != RobotHardware::IMU_2_PORT,
+              "IMU 1 and IMU 2 need different ports.");
 
 static_assert(RobotHardware::ROLLER_MOTOR_PORT >= -21 && RobotHardware::ROLLER_MOTOR_PORT <= 21,
               "ROLLER_MOTOR_PORT must be 0 (disabled) or +/-1..21.");
@@ -28,7 +30,7 @@ static_assert(RobotHardware::ROLLER_POWER >= 1 && RobotHardware::ROLLER_POWER <=
               "ROLLER_POWER must be 1..127.");
 
 std::array<int, 3> RobotHardware::vmp_ports() {
-  return {DRIVE_IMU_1_PORT, DRIVE_IMU_2_PORT, LIFT_IMU_PORT};
+  return {IMU_1_PORT, IMU_2_PORT, LIFT_IMU_PORT};
 }
 localization::Config RobotHardware::localization_config() {
   localization::Config config;
@@ -72,7 +74,7 @@ bool RobotHardware::lift_rotation_port_available() {
   if (requested < 1 || requested > 21) return false;
   std::vector<int> used = DRIVE_LEFT_PORTS;
   used.insert(used.end(), DRIVE_RIGHT_PORTS.begin(), DRIVE_RIGHT_PORTS.end());
-  for (int port : {LIFT_LEFT_PORT, LIFT_RIGHT_PORT, CLAW_PORT, DRIVE_IMU_1_PORT, DRIVE_IMU_2_PORT, LIFT_IMU_PORT,
+  for (int port : {LIFT_LEFT_PORT, LIFT_RIGHT_PORT, CLAW_PORT, IMU_1_PORT, IMU_2_PORT, LIFT_IMU_PORT,
                   ROLLER_MOTOR_PORT, ROLLER_OPTICAL_PORT}) used.push_back(port);
   for (const auto& mount : {DISTANCE_FRONT, DISTANCE_RIGHT, DISTANCE_BACK, DISTANCE_LEFT})
     used.push_back(mount.port);

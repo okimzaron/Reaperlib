@@ -1,3 +1,5 @@
+// [Reaper] Controller screen task. Writes one row at a time (the controller only takes ~1 every 50 ms).
+
 #include "main.h"
 #include "Reaper-Template/controller_ui.hpp"
 #include "Reaper-Template/vmp_settings.hpp"

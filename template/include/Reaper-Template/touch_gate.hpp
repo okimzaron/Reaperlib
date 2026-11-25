@@ -1,4 +1,6 @@
 #pragma once
+
+// [Reaper] Touch filter for the dashboard: only counts clean taps (rejects bounce and double hits).
 #include <cstdint>
 
 namespace ez::detail {

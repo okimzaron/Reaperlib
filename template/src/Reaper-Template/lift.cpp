@@ -1,3 +1,5 @@
+// [Reaper] Lift controller task: reads the lift motors (or rotation sensor) and runs lift_core.hpp.
+
 #include "main.h"
 #include "Reaper-Template/lift_settings.hpp"
 #include "Reaper-Template/piston_group.hpp"

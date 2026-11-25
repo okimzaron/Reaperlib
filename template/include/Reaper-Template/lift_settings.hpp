@@ -1,4 +1,6 @@
 #pragma once
+
+// [Reaper] Lift tuning file (yours to edit).
 #include "lift_core.hpp"
 
 // Lift tuning. Every field and its default is listed in struct Config in lift_core.hpp.

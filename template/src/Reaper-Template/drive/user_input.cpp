@@ -258,6 +258,7 @@ PID::Constants Drive::opcontrol_drive_activebrake_constants_get() { return left_
 // Set joystick threshold
 void Drive::opcontrol_joystick_threshold_set(int threshold) { JOYSTICK_THRESHOLD = std::abs(threshold); }
 int Drive::opcontrol_joystick_threshold_get() { return JOYSTICK_THRESHOLD; }
+// [Reaper] Joystick minimum output (idea from LemLib): a small stick push still beats friction.
 void Drive::opcontrol_joystick_min_output_set(int min_output) { JOYSTICK_MIN_OUTPUT = std::clamp(std::abs(min_output), 0, 126); }
 int Drive::opcontrol_joystick_min_output_get() { return JOYSTICK_MIN_OUTPUT; }
 
@@ -357,6 +358,7 @@ int Drive::opcontrol_speed_max_get() { return (int)opcontrol_speed_max; }
 int Drive::clipped_joystick(int joystick) { return std::abs(joystick) < JOYSTICK_THRESHOLD ? 0 : joystick; }
 
 // Rescales a curved stick value from (0, 127] onto [min, 127], keeping its sign. 0 stays 0.
+// [Reaper] Joystick minimum output, applied after the curve.
 int Drive::stick_min_output(int curved) {
   if (JOYSTICK_MIN_OUTPUT <= 0 || curved == 0) return curved;
   const double magnitude = std::min(127.0, std::fabs(static_cast<double>(curved)));

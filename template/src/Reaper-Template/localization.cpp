@@ -1,3 +1,5 @@
+// [Reaper] Localization task and wall resets. See localization.hpp.
+
 #include "Reaper-Template/localization.hpp"
 #include "Reaper-Template/lock.hpp"
 #include "Reaper-Template/vmp.hpp"

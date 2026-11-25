@@ -1,12 +1,5 @@
 #include "main.h"
 
-// ---------------------------------------------------------------------------------------------------------
-// Manual autonomous runner (TEST_AUTON_1 + TEST_AUTON_2 in robot_controls.hpp; no field controller only).
-//
-// The auton runs in its own task. That task never deletes itself: when the route finishes it raises
-// `test_auton_done` and parks. Only this file deletes it, so the task handle is always valid while it is
-// stored here (asking PROS about a task that already deleted itself reads freed memory).
-// ---------------------------------------------------------------------------------------------------------
 namespace {
 pros::task_t test_auton_task = nullptr;
 std::atomic<bool> test_auton_done{false};
@@ -15,7 +8,6 @@ pros::motor_brake_mode_e_t test_auton_previous_brake = MOTOR_BRAKE_COAST;
 
 bool test_auton_is_running() { return test_auton_task != nullptr && !test_auton_done.load(); }
 
-// Puts every mechanism back to a safe, idle state after a manual run ends or is cancelled.
 void test_auton_release_robot() {
   lift::hold_current();
   roller::stop();
@@ -29,7 +21,7 @@ void test_auton_release_robot() {
 void test_auton_task_fn(void*) {
   autonomous();
   test_auton_done.store(true);
-  while (true) pros::delay(1000);  // park; test_auton_end() deletes this task
+  while (true) pros::delay(1000);  // 
 }
 
 // Deletes the auton task (finished or not) and releases the robot. Safe to call at any time.
@@ -105,8 +97,7 @@ void vmp_drive_speed_limit() {
 void initialize() {
   register_routes();
 
-  // Restore the route saved on the SD card. This deliberately does NOT start EZ-Template's LLEMU screen:
-  // the touch dashboard owns the brain screen, and LLEMU would flash up before the Reaper splash.
+  // Restore the route saved on the SD card. 
   ez::as::auton_selector_initialize();
   ez::as::auton_selector.selected_auton_print();
 
@@ -152,13 +143,13 @@ void autonomous() {
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
-  chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Routes should set their real field position (see docs/autons.md)
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Routes should set their real field position (see https://reaperlib.online/docs/#autons)
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold. This helps autonomous consistency
 
   lift::enable();
 
-  // RW uses the same heading and pose as EZ motion control.
-  // Pose resets automatically recenter the RW particle filter.
+
+  // Pose resets automatically 
   roller::stop();
   ez::as::auton_selector.selected_auton_call();
   roller::stop();

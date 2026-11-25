@@ -1,5 +1,8 @@
 /* This Source Code Form is subject to the Mozilla Public License, v. 2.0.
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// [Reaper] Touch dashboard. See auton_selector.hpp.
+
 #include "Reaper-Template/api.hpp"
 #include "Reaper-Template/roller.hpp"
 #include "Reaper-Template/vmp.hpp"
@@ -515,10 +518,26 @@ void ez::AutonSelector::build_sensors_page(int content_width, int height) {
   lv_label_set_text(title, "SENSORS | IMU MOTION");
   lv_obj_set_pos(title, 8, 9);
 
-  const int cell_w = (content_width - 28) / 3;
+  // Like the Motors page, only IMUs that have a port in robot_hardware.hpp get a card, and the cards
+  // share the width: one IMU = one wide card, two or three = side by side.
+  const auto ports = RobotHardware::vmp_ports();
+  sensor_count_ = 0;
+  for (int slot = 0; slot < 3; ++slot)
+    if (ports[slot] != 0) sensor_slots_[sensor_count_++] = slot;
+
+  if (sensor_count_ == 0) {
+    auto* none = lv_label_create(sensors_panel_);
+    lv_obj_set_pos(none, 8, 40);
+    lv_obj_set_width(none, content_width - 16);
+    lv_label_set_long_mode(none, LV_LABEL_LONG_WRAP);
+    lv_label_set_text(none, "No IMUs set up.\nAdd IMU_1_PORT (and optionally IMU_2_PORT, LIFT_IMU_PORT)\nin robot_hardware.hpp.");
+  }
+
+  const int gap = 6;
+  const int cell_w = sensor_count_ ? (content_width - 16 - gap * (sensor_count_ - 1)) / sensor_count_ : 0;
   const int cell_h = height - 100;
-  for (int i = 0; i < 3; ++i) {
-    auto* box = panel(sensors_panel_, 8 + i * (cell_w + 6), 32, cell_w, cell_h);
+  for (int i = 0; i < sensor_count_; ++i) {
+    auto* box = panel(sensors_panel_, 8 + i * (cell_w + gap), 32, cell_w, cell_h);
     lv_obj_set_style_bg_opa(box, LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(box, lv_color_hex(theme::CARD), 0);
     lv_obj_set_style_border_width(box, 1, 0);
@@ -553,21 +572,15 @@ void ez::AutonSelector::build_sensors_page(int content_width, int height) {
 
 void ez::AutonSelector::refresh_sensors() {
   if (!sensors_panel_) return;
-  static const char* const slot_names[] = {"Drive IMU 1", "Drive IMU 2", "Lift IMU"};
-  const int ports[] = {RobotHardware::DRIVE_IMU_1_PORT, RobotHardware::DRIVE_IMU_2_PORT,
-                       RobotHardware::LIFT_IMU_PORT};
+  static const char* const slot_names[] = {"IMU 1", "IMU 2", "Lift IMU"};
+  const auto ports = RobotHardware::vmp_ports();
   const auto rows = vmp::snapshot();
   char text[160];
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < sensor_count_; ++i) {
+    const int slot = sensor_slots_[i];
     const auto& card = sensor_cards_[i];
-    const auto& r = rows[i];
-    if (ports[i] == 0) {
-      lv_label_set_text(card.title, slot_names[i]);
-      lv_label_set_text(card.body, "not used\n(port 0)");
-      lv_obj_set_style_border_color(card.box, lv_color_hex(theme::BORDER), 0);
-      continue;
-    }
-    std::snprintf(text, sizeof(text), "%s P%d", slot_names[i], ports[i]);
+    const auto& r = rows[slot];
+    std::snprintf(text, sizeof(text), "%s P%d", slot_names[slot], ports[slot]);
     lv_label_set_text(card.title, text);
 
     uint32_t color = theme::WAITING;  // warming
@@ -575,6 +588,10 @@ void ez::AutonSelector::refresh_sensors() {
     else if (r.state == vmp::State::active) color = theme::WARN;
     else if (r.state == vmp::State::invalid || r.state == vmp::State::stale) color = theme::BAD;
     lv_obj_set_style_border_color(card.box, lv_color_hex(color), 0);
+    if (r.state == vmp::State::invalid) {  // unplugged, wrong device, or still calibrating
+      lv_label_set_text(card.body, "no reading\ncheck the port\n(normal while\ncalibrating)");
+      continue;
+    }
 
     char tilt[24];
     if (r.tilt_reference && std::isfinite(r.tilt_deg)) std::snprintf(tilt, sizeof(tilt), "%.1f deg", r.tilt_deg);

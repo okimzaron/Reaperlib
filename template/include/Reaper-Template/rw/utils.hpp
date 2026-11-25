@@ -8,6 +8,9 @@
 namespace reaper_rw {
 
 //declarations for utilities such as graphing classes and math functions.
+// Reaper note: Reaper's localization uses distanceResetPosition (and, through mcl.cpp, localToGlobal,
+// beamToWall and degToRad). Odometry is done by EZ-Template, so odomStep/arcToChord/getRadius are
+// kept from RW-Template unchanged but not called.
 
 
 double degToRad(double deg);

@@ -35,6 +35,7 @@ public:
     std::uint32_t epoch, ms;
     bool ready;
   };
+  // [Reaper] Hooks for localization.cpp: read the pose and apply small X/Y corrections.
   LocalizationSample localization_sample();
   // Add a correction to the latest pose, preserving motion since the snapshot.
   // Reject work computed before a user pose reset. Recenter increments the epoch.
@@ -48,6 +49,7 @@ public:
    * Set with opcontrol_joystick_threshold_set()
    */
   int JOYSTICK_THRESHOLD = 3;
+  // [Reaper] Joystick minimum output (idea from LemLib).
   int JOYSTICK_MIN_OUTPUT = 0;  // see opcontrol_joystick_min_output_set()
 
   /**
@@ -661,6 +663,7 @@ public:
    * theta in degrees/second (clockwise positive). Smoothed over about 50 ms. Zero while odometry is off.
    * Pose resets (odom_xyt_set, localization corrections) are not counted as movement.
    */
+  // [Reaper] Odometry velocity (idea from LemLib).
   pose odom_velocity_get();
 
   /**
@@ -1151,6 +1154,7 @@ public:
    * straight to a power that actually moves the robot, instead of a few volts that only hum the motors.
    * Applied to each stick after the joystick curve; full stick is still 127.
    */
+  // [Reaper] Joystick minimum output (idea from LemLib).
   void opcontrol_joystick_min_output_set(int min_output);
   int opcontrol_joystick_min_output_get();
 
@@ -2082,6 +2086,7 @@ public:
    * \param dir         ez::fwd to face it, ez::rev to point the back at it
    * \param speed       0 to 127
    */
+  // [Reaper] Swing to a point (idea from LemLib): swing until the robot faces itarget.
   void pid_swing_set(e_swing type, pose itarget, drive_directions dir, int speed);
   void pid_swing_set(e_swing type, pose itarget, drive_directions dir, int speed, int opposite_speed);
   void pid_swing_set(e_swing type, pose itarget, drive_directions dir, int speed, int opposite_speed,
@@ -3931,6 +3936,7 @@ public:
 
 private:
   // Robot speed, updated by ez_tracking_task() (under drive_mutex).
+  // [Reaper] Odometry velocity state.
   pose odom_velocity_ = {0.0, 0.0, 0.0};
   std::uint32_t odom_velocity_ms_ = 0;
   double odom_velocity_last_theta_ = 0.0;
@@ -4060,6 +4066,7 @@ private:
 
   bool is_swing_slew_enabled(e_swing type, double target, double current, e_angle_behavior behavior);
   void swing_set_internal(e_swing type, double target, int speed, int opposite_speed, e_angle_behavior behavior, bool slew_on);
+  // [Reaper] Swing to a point (idea from LemLib).
   double swing_point_heading(e_swing type, pose itarget, drive_directions dir, int opposite_speed);
   bool slew_reenables_when_max_speed_changes = true;
   int slew_min_when_it_enabled = 0;
@@ -4211,6 +4218,7 @@ private:
    *        joystick value, -127 to 127
    */
   int clipped_joystick(int joystick);
+  // [Reaper] Joystick minimum output.
   int stick_min_output(int curved);  // applies JOYSTICK_MIN_OUTPUT to one curved stick value
 
   /**
