@@ -2,20 +2,27 @@
    1. A brain-screen style frame fills like Reaper's IMU calibration bar.
    2. The scythe swings across and slashes the screen.
    3. The screen splits along the slash and slides apart, revealing the page.
-   Plays once per browser (remembered in localStorage). Click or press any key to skip.
-   Add ?intro to the URL to replay it. */
+   Plays on every visit unless turned off with the intro button in the header (localStorage 'reaper-intro-off'). Click or press any key to skip.
+   Add ?intro to the URL, or switch the header button back on, to replay it. */
 (function () {
   var root = document.documentElement;
-  var KEY = 'reaper-intro-seen';
+  var KEY = 'reaper-intro-off';
   var force = /[?&]intro\b/.test(location.search);
-  var seen = true;
-  try { seen = !!localStorage.getItem(KEY); } catch (e) { seen = true; } // storage blocked: never nag
-  if (seen && !force) { root.classList.remove('r-intro-pending'); return; }
-  try { localStorage.setItem(KEY, '1'); } catch (e) { /* ignore */ }
-
+  var off = false;
+  try { off = !!localStorage.getItem(KEY); } catch (e) { off = false; }
   var script = document.currentScript;
   var scytheSrc = (script && script.getAttribute('data-scythe')) || '../assets/img/reaper-scythe.webp';
+  var running = false;
 
+  // The header's intro button calls this when it's switched back on.
+  window.siteIntro = { key: KEY, play: function () { if (!running) run(); } };
+
+  // Links straight to a section (reaper/#team, etc.) skip the intro.
+  if ((off || location.hash) && !force) { root.classList.remove('r-intro-pending'); return; }
+  run();
+
+  function run() {
+  running = true;
   var el = document.createElement('div');
   el.className = 'r-intro';
   el.setAttribute('aria-hidden', 'true');
@@ -96,6 +103,7 @@
     document.body.style.overflow = '';
     el.remove();
     document.removeEventListener('keydown', skip);
+    running = false;
   };
 
   var skipped = false;
@@ -111,4 +119,5 @@
 
   at(1350, slashPhase);
   at(1350 + 620, function () { if (!skipped) splitPhase(); });
+  }
 })();

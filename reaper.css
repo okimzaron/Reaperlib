@@ -401,3 +401,9 @@ h1, h2, h3, h4,
 .r-hero h1 { letter-spacing: 0.01em; font-weight: 400; }
 .r-brand small { font-family: var(--font-display); letter-spacing: .04em; }
 .nav-group a { font-size: 14px; }
+
+/* Intro animation on/off */
+.intro-toggle .intro-slash { display: none; }
+.intro-toggle:not(.is-off) { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.intro-toggle.is-off { color: var(--muted); }
+.intro-toggle.is-off .intro-slash { display: inline; }
