@@ -6,6 +6,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #pragma once
 
+// [Reaper] Kill-safe locks. Competition mode changes delete tasks without warning; these guards keep a
+// deleted task from leaving a mutex locked forever. Rule: never block or delay while holding one.
+
 #include <atomic>
 #include <cstdarg>
 #include <cstdint>

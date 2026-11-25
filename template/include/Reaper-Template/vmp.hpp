@@ -3,11 +3,11 @@
 #include <cstdint>
 #include "Reaper-Template/vmp_core.hpp"
 
-// VMP: watches up to three IMUs at 100 Hz and turns them into "is the robot still?", "did it get hit?",
+// [Reaper] VMP: watches up to three IMUs at 100 Hz and turns them into "is the robot still?", "did it get hit?",
 // "is it tipping?" and "is the lift swaying?". It only observes: it never calibrates or resets an IMU and
 // never moves a motor. Tuning lives in vmp_settings.hpp; live readings are on the brain's Sensors page.
 //
-// Slots: 0 = drive IMU 1, 1 = drive IMU 2, 2 = lift IMU (all from robot_hardware.hpp). Port 0 = unused.
+// Slots: 0 = IMU 1, 1 = IMU 2, 2 = lift IMU (all from robot_hardware.hpp). Port 0 = unused.
 // Every function is safe to call from any task.
 namespace vmp {
 
@@ -17,15 +17,21 @@ bool start(const std::array<int, 3>& ports, bool console_csv = false);
 /// Latest per-slot readings.
 std::array<Snapshot, 3> snapshot();
 
-/// True when every configured drive IMU reports QUIET (robot still). False if no drive IMU is configured.
+/// True when every configured chassis IMU (IMU 1 / IMU 2) reports QUIET (robot still). False if neither IMU 1 nor IMU 2 is configured.
 bool is_quiet();
 
 /// Blocks until the robot is still (is_quiet) or the timeout passes. True = confirmed still.
-/// Returns false at once when no drive IMU is configured, so routes never sit waiting for nothing.
+/// Returns false at once when neither IMU 1 nor IMU 2 is configured, so routes never sit waiting for nothing.
 /// Use before reading the start position or a localization::distance_reset().
 bool wait_quiet(std::uint32_t timeout_ms = 1500);
 
-/// True if a drive IMU registered a hit at or after `since_ms` (a pros::millis() time).
+/// Reaper one-call "stop and be still": chassis.pid_wait() (the motion finishes), then wait_quiet()
+/// (the robot physically stops rocking). Use it in place of the pair before a wall reset or anything
+/// that needs a dead-still robot. Without IMU 1 / IMU 2 it waits a fixed 80 ms instead.
+/// True = confirmed still; false = timed out (or no IMU), carry on anyway or skip the reset.
+bool settle(std::uint32_t timeout_ms = 600);
+
+/// True if IMU 1 or IMU 2 registered a hit at or after `since_ms` (a pros::millis() time).
 bool impact_since(std::uint32_t since_ms);
 
 struct Impact {
@@ -34,7 +40,7 @@ struct Impact {
   double g = 0;          // size of the jolt
   int slot = -1;
 };
-/// Most recent hit on either drive IMU.
+/// Most recent hit on IMU 1 or IMU 2.
 Impact last_impact();
 
 enum class Alert { none, sway, tipping };

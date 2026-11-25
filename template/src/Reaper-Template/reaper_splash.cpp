@@ -1,3 +1,5 @@
+// [Reaper] Scythe splash animation. See reaper_splash.hpp.
+
 #include "Reaper-Template/reaper_splash.hpp"
 
 #include <algorithm>

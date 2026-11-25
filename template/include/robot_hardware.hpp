@@ -1,4 +1,7 @@
 #pragma once
+
+// [Reaper] Every port and sensor position in one place (see SETTINGS below).
+// Guide: https://reaperlib.online/docs/#hardware
 #include <array>
 #include <memory>
 #include <vector>
@@ -42,10 +45,12 @@ class RobotHardware {
   // Signed conversion: sensor degrees -> existing MOTOR-equivalent lift degrees.
   static constexpr double LIFT_MOTOR_DEGREES_PER_SENSOR_DEGREE = 1.0;
 
-  // Shared chassis IMUs: EZ heading/localization and VMP use these SAME entries.
-  static constexpr int DRIVE_IMU_1_PORT = 0;
-  static constexpr int DRIVE_IMU_2_PORT = 0; // 0 disables the second IMU.
-  static constexpr int LIFT_IMU_PORT = 0;    // Optional VMP monitor; 0 disables.
+  // IMUs. IMU 1 and IMU 2 sit on the chassis: they give the robot its heading (turns, odometry,
+  // localization) and feed VMP's still / hit / tipping checks. One IMU is enough: put it in IMU_1_PORT
+  // and leave IMU_2_PORT at 0. With two, heading comes from IMU 1 and switches to IMU 2 if IMU 1 fails.
+  static constexpr int IMU_1_PORT = 0;     // 0 = not used
+  static constexpr int IMU_2_PORT = 0;     // 0 = not used (optional backup)
+  static constexpr int LIFT_IMU_PORT = 0;  // Optional IMU on the lift, for VMP's lift-sway warning only. 0 = not used
   static constexpr bool VMP_CONSOLE_CSV = false;
 
   // Distance sensor face offsets: inches from turning center, +X right, +Y forward.
@@ -85,14 +90,14 @@ class RobotHardware {
   // Declare tracker ownership before chassis so chassis is destroyed first.
   std::unique_ptr<ez::tracking_wheel> left_tracker;
   std::unique_ptr<ez::tracking_wheel> right_tracker;
-  ez::Drive chassis{DRIVE_LEFT_PORTS, DRIVE_RIGHT_PORTS, drive_imu_ports(),
+  ez::Drive chassis{DRIVE_LEFT_PORTS, DRIVE_RIGHT_PORTS, imu_ports(),
                     DRIVE_WHEEL_DIAMETER, DRIVE_WHEEL_RPM};
 
   RobotHardware() = default;
   RobotHardware(const RobotHardware&) = delete;
   RobotHardware& operator=(const RobotHardware&) = delete;
   void configure_devices(); // Before chassis.initialize(); creates enabled trackers once.
-  static std::vector<int> drive_imu_ports();
+  static std::vector<int> imu_ports();
   static std::array<int, 3> vmp_ports();
   static bool lift_rotation_port_available();
   static localization::Config localization_config();

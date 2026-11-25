@@ -1,4 +1,8 @@
 #pragma once
+
+// [Reaper] Lift controller, the part your code calls (enable, presets, driver control, sequences).
+// One background task drives both lift motors with PID, travel limits and fault checks.
+// Ports: robot_hardware.hpp. Tuning: lift_settings.hpp. Guide: https://reaperlib.online/docs/#lift
 #include "lift_core.hpp"
 #include "sequence_core.hpp"
 #include <functional>

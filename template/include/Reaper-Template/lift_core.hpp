@@ -1,4 +1,7 @@
 #pragma once
+
+// [Reaper] Lift controller math with no VEX calls: PID, gravity compensation, gain scheduling, travel
+// limits and fault detection. Kept device-free so it can be checked on a computer; lift.cpp feeds it.
 #include <algorithm>
 #include <cmath>
 #include <cstdint>

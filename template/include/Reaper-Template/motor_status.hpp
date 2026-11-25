@@ -1,4 +1,6 @@
 #pragma once
+
+// [Reaper] Motor monitor data and the checks behind the Motors page colors (port conflicts, wrong device).
 #include <cmath>
 #include <cstdint>
 #include <string>

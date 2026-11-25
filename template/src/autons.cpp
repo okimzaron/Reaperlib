@@ -3,12 +3,12 @@
 // Manual PID constants and motion defaults. Routes live in src/routes/.
 void default_constants() {
   // P, I, D, and Start I
-  chassis.pid_drive_constants_set(5.0, 0.0, 0.0);
-  chassis.pid_heading_constants_set(5.0, 0.0, 0.0);
-  chassis.pid_turn_constants_set(4.8, 0.0, 5.3, 0.0);
-  chassis.pid_swing_constants_set(5.0, 0.0, 0.0);
-  chassis.pid_odom_angular_constants_set(5.0, 0.0, 0.0);
-  chassis.pid_odom_boomerang_constants_set(5.0, 0.0, 0.0);
+  chassis.pid_drive_constants_set(0.0, 0.0, 0.0);
+  chassis.pid_heading_constants_set(0.0, 0.0, 0.0);
+  chassis.pid_turn_constants_set(0.0, 0.0, 0.0, 0.0);
+  chassis.pid_swing_constants_set(0.0, 0.0, 0.0);
+  chassis.pid_odom_angular_constants_set(0.0, 0.0, 0.0);
+  chassis.pid_odom_boomerang_constants_set(0.0, 0.0, 0.0);
 
   // Exit conditions
   chassis.pid_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);

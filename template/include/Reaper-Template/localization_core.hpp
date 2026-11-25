@@ -1,4 +1,7 @@
 #pragma once
+
+// [Reaper] Localization engine with no VEX calls. Decides which distance readings to trust (range,
+// confidence, angle, field map, sensor lag), feeds them to RW's particle filter, and checks wall resets.
 #include <array>
 #include <cstdint>
 #include <cmath>

@@ -291,6 +291,7 @@ void Drive::pid_swing_set(e_swing type, double target, int speed, int opposite_s
 // Swing toward a point
 /////
 // Heading that leaves the robot's center line pointing at `itarget` once the swing ends.
+// [Reaper] Swing to a point (idea from LemLib): the heading that aims the robot at a point, measured from the pivot wheel.
 double Drive::swing_point_heading(e_swing type, pose itarget, drive_directions dir, int opposite_speed) {
   const pose current = odom_pose_get();
   const bool reverse = dir == rev;

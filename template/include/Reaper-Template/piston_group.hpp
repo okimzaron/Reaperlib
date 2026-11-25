@@ -1,4 +1,6 @@
 #pragma once
+
+// [Reaper] Piston groups: several ez::Piston that fire together as one. Guide: https://reaperlib.online/docs/#pistons
 #include "piston.hpp"
 #include "lock.hpp"
 #include <vector>

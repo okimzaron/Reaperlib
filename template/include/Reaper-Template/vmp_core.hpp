@@ -1,4 +1,7 @@
 #pragma once
+
+// [Reaper] VMP math with no VEX calls: turns one IMU's acceleration and rotation into still / moving,
+// hits, and tilt.
 #include <array>
 #include <cmath>
 #include <cstdint>

@@ -1,3 +1,5 @@
+// [Reaper] Motor monitor task. See motor_monitor.hpp.
+
 #include "main.h"
 
 namespace motor_monitor {
@@ -20,7 +22,7 @@ std::vector<ez::MotorStatus> inventory() {
   entries.push_back({"Lift R", RobotHardware::LIFT_RIGHT_PORT});
   entries.push_back({"Claw", RobotHardware::CLAW_PORT});
   entries.push_back({"Roller", RobotHardware::ROLLER_MOTOR_PORT});
-  std::vector<int> sensors{RobotHardware::DRIVE_IMU_1_PORT, RobotHardware::DRIVE_IMU_2_PORT,
+  std::vector<int> sensors{RobotHardware::IMU_1_PORT, RobotHardware::IMU_2_PORT,
     RobotHardware::LIFT_IMU_PORT, RobotHardware::DISTANCE_FRONT.port,
     RobotHardware::DISTANCE_RIGHT.port, RobotHardware::DISTANCE_BACK.port,
     RobotHardware::DISTANCE_LEFT.port, RobotHardware::ROLLER_OPTICAL_PORT};

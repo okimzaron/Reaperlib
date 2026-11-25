@@ -1,4 +1,7 @@
 #pragma once
+
+// [Reaper] Sequences: lift, claw, piston and wait steps that run in order in the background, so a
+// route can keep driving while a mechanism does its thing. Guide: https://reaperlib.online/docs/#sequences
 #include <cstdint>
 #include <cstddef>
 namespace lift {

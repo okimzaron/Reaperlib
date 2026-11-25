@@ -1,4 +1,6 @@
 #pragma once
+
+// [Reaper] Your field map (yours to edit).
 #include "Reaper-Template/field_map_core.hpp"
 
 // FIELD MAP FOR LOCALIZATION

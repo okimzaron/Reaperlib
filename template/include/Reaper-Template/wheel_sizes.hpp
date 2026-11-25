@@ -1,5 +1,7 @@
 #pragma once
 
+// [Reaper, idea from LemLib] Measured wheel sizes.
+
 // Measured VEX omni wheel diameters, in inches. The nominal size on the box is not the real rolling diameter,
 // and odometry distance is only as accurate as this number. Use these for DRIVE_WHEEL_DIAMETER and
 // tracking-wheel diameters in robot_hardware.hpp, e.g. `DRIVE_WHEEL_DIAMETER = ez::wheel::NEW_325;`.

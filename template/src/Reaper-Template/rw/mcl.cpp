@@ -2,7 +2,8 @@
 // Monte Carlo localization (a particle filter) for the robot's X/Y position.
 // Heading comes from the IMU; the distance sensors correct X/Y against the field walls.
 // Pure math with no VEX calls, so it can be tested on a computer.
-// The robot side (thread, sensors, settings) is runMcl() in motor-control.cpp.
+// In Reaper, the robot side (thread, sensors, settings) is localization::Engine in
+// localization_core.hpp and the task in localization.cpp (RW-Template had it in runMcl()).
 #include <math.h>
 #include <stdint.h>
 #include "Reaper-Template/rw/utils.hpp"
@@ -177,7 +178,7 @@ bool finishCorrection(double total_likelihood, double total_weight) {
  * mclCorrect
  * Weighs every particle by how well it explains the distance readings, then resamples.
  * Readings should already be checked (sensor saw something, in range, hits a wall
- * at a reasonable angle away from corners); see runMcl().
+ * at a reasonable angle away from corners); see localization::Engine::update().
  * Returns true if the readings were used.
  * - heading_deg: Robot heading when the readings were taken (in degrees, 0 faces +Y, clockwise positive).
  * - readings, reading_count: The usable readings.

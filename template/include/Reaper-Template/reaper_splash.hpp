@@ -1,4 +1,6 @@
 #pragma once
+
+// [Reaper] Scythe splash animation shown while the IMUs calibrate.
 #include <cstdint>
 
 // Boot overlay on LVGL's top layer. Prepare the dashboard first, then start

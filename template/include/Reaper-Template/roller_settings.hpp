@@ -1,4 +1,6 @@
 #pragma once
+
+// [Reaper] Roller colour tuning file (yours to edit).
 #include "roller_core.hpp"
 
 // Roller colour tuning. Ports, power and direction live in robot_hardware.hpp.

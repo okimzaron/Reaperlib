@@ -13,16 +13,21 @@ license. The full texts are in [`licenses/`](licenses/).
 | [PROS](https://github.com/purduesigbots/pros) | Purdue SIGBots | MPL-2.0 | The kernel 4.2.2: `include/pros/`, `firmware/`, `common.mk`. Includes FreeRTOS (MIT). → [`licenses/PROS.txt`](licenses/PROS.txt) |
 | [OkapiLib](https://github.com/purduesigbots/OkapiLib) | Purdue SIGBots | MPL-2.0 | The units design EZ-Units is derived from. |
 | [LVGL](https://github.com/lvgl/lvgl) | LVGL Kft | MIT | Graphics library behind the brain screen splash and dashboard. → [`licenses/LVGL.txt`](licenses/LVGL.txt) |
-| [LemLib](https://github.com/LemLib/LemLib) | Liam Teale and LemLib contributors | MIT | The `pros-build` GitHub Action and the PR comment workflow in `.github/workflows/`. → [`licenses/LemLib.txt`](licenses/LemLib.txt) |
-| [nightly.link](https://github.com/oprypin/nightly.link) | Oleh Prypin | Public domain snippet | Part of `.github/workflows/pr-edit.yml`. |
+| [LemLib](https://github.com/LemLib/LemLib) | Liam Teale and LemLib contributors | MIT | Ideas rewritten for Reaper: measured wheel sizes (`wheel_sizes.hpp`), odometry velocity, swing to a point and joystick minimum output. Marked `[Reaper, idea from LemLib]` in the code. → [`licenses/LemLib.txt`](licenses/LemLib.txt) |
+| [RCL-Tracking](https://github.com/jiazegao/RCL-Tracking) | jiazegao | - | Ideas rewritten for Reaper (no code copied): the distance sensor confidence check, averaged wall resets and the field map of obstacles. |
 
 ## Reaper's own work
 
 Reaper's additions on top of EZ-Template include: the hardware configuration
 system, the lift controller and sequences, piston groups, localization integration,
 VMP, the motor monitor, the controller screen, the scythe splash animation, the
-touch dashboard, the manual auton runner, the kill-safe locking rules and the
-reworked stuck detection.
+touch dashboard, the manual auton runner, the kill-safe locking rules, the colour
+roller and the reworked stuck detection.
+
+**Finding Reaper's code:** every file Reaper wrote starts with a `// [Reaper]` comment
+that says what it does, and Reaper's additions inside EZ-Template files are marked
+the same way. Search the project for `[Reaper` to see all of it. Everything without
+the tag is the original EZ-Template, RW-Template, PROS or LVGL code.
 
 The scythe splash art and the 4588G Gambit logo belong to 4588G Gambit. If you use
 Reaper for your own team, swap in your own logo (see
