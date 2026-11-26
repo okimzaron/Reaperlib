@@ -407,3 +407,7 @@ h1, h2, h3, h4,
 .intro-toggle:not(.is-off) { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 .intro-toggle.is-off { color: var(--muted); }
 .intro-toggle.is-off .intro-slash { display: inline; }
+
+/* Lemon Aid nav link */
+.nav-lemon { display: inline-flex; align-items: center; gap: 7px; }
+.lemon-dot { width: 8px; height: 8px; border-radius: 50%; background: #facc15; box-shadow: 0 0 10px rgba(250, 204, 21, .7); }

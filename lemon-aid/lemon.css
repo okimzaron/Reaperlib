@@ -1,0 +1,80 @@
+/* lemon.css: Lemon-Aid page. Sits on top of reaper.css; adds the logo's lemon yellow. */
+.page-lemon {
+  --lemon: #ffd966;           /* logo yellow */
+  --lemon-deep: #f5c842;
+  --lemon-pale: #ffffaa;
+  --lemon-ink: #1a1405;
+  --lemon-soft: rgba(255, 217, 102, 0.13);
+  --lemon-line: rgba(255, 217, 102, 0.4);
+  --lemon-text: #ffd966;
+}
+:root[data-theme="light"] .page-lemon { --lemon-text: #8a6500; --lemon-soft: rgba(234, 179, 8, 0.15); --lemon-line: rgba(138, 101, 0, .35); }
+
+/* buttons */
+.la-btn { background: var(--lemon); color: var(--lemon-ink); box-shadow: 0 10px 30px -12px var(--lemon); }
+.la-btn:hover { background: var(--lemon-deep); }
+.la-btn svg { width: 18px; height: 18px; }
+
+.la-kicker { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--lemon-text) !important; }
+
+/* ---------- Hero ---------- */
+.la-hero { position: relative; overflow: hidden; padding: 72px 0 80px; text-align: center; isolation: isolate; }
+.la-hero::before {
+  content: ''; position: absolute; inset: -20% -10% auto; height: 120%; z-index: -1;
+  background: radial-gradient(closest-side, rgba(255, 217, 102, .16), transparent 70%);
+}
+.la-logo {
+  display: block; width: min(300px, 68vw); aspect-ratio: 1; margin: 0 auto; padding: 6%;
+  border-radius: 50%; background: #050403; box-shadow: 0 30px 80px -30px rgba(255, 217, 102, .45), 0 0 0 1px rgba(255, 217, 102, .15);
+}
+.la-hero h1 {
+  margin-top: 30px; font-size: clamp(2.6rem, 8.5vw, 5.6rem); font-weight: 700; letter-spacing: -0.04em; line-height: .98;
+  color: var(--lemon);
+}
+:root[data-theme="light"] .la-hero h1 { color: #a87b00; }
+.la-tag {
+  display: inline-block; margin-top: 16px; padding: 5px 14px; border-radius: 999px; border: 1px solid var(--lemon-line);
+  background: var(--lemon-soft); color: var(--lemon-text); font-family: var(--font-mono); font-size: 13px; letter-spacing: .2em;
+}
+.la-tagline { margin: 16px auto 0; max-width: 520px; font-size: 1.15rem; color: var(--muted); }
+.la-hero .r-hero-cta { margin-top: 28px; }
+
+/* ---------- Teams ---------- */
+.la-teams { display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; align-items: start; }
+.la-group { padding: 22px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+.la-group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.la-group-head h3 { font-size: 1.15rem; }
+.la-group-head span { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.la-team-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.la-team-list li {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 11px;
+  background: var(--bg-2); border: 1px solid var(--line); transition: border-color .2s;
+}
+.la-team-list li:hover { border-color: var(--lemon-line); }
+.la-num { flex: none; min-width: 64px; font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--lemon-text); }
+.la-name { font-weight: 600; }
+.la-team-list.la-vexu { grid-template-columns: 1fr; }
+.la-team-list.la-vexu .la-name { letter-spacing: .04em; }
+.la-team-list li.is-home { border-color: var(--lemon-line); background: var(--lemon-soft); }
+@media (max-width: 880px) { .la-teams { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .la-team-list { grid-template-columns: 1fr; } }
+
+/* ---------- Events ---------- */
+.la-soon {
+  display: grid; place-items: center; text-align: center; gap: 10px; padding: 56px 24px; border-radius: 20px;
+  border: 1px dashed var(--lemon-line); background: var(--lemon-soft);
+}
+.la-soon img { width: 64px; height: 64px; opacity: .9; }
+.la-soon h3 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); color: var(--lemon-text); }
+.la-soon p { color: var(--muted); max-width: 440px; }
+.la-soon .r-btn { margin-top: 10px; }
+
+/* ---------- Joining ---------- */
+.la-step-num {
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; margin-bottom: 14px;
+  background: var(--lemon-soft); color: var(--lemon-text); font-family: var(--font-display); font-weight: 700; font-size: 1.2rem;
+}
+.la-steps .feature:hover { border-color: var(--lemon-line); }
+.la-steps { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1000px) { .la-steps { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .la-steps { grid-template-columns: 1fr; } }
