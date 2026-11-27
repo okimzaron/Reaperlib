@@ -35,6 +35,9 @@
         <a class="icon-btn" href="https://zaronworks.online/" title="Back to Za'Ron's portfolio" aria-label="Back to Za'Ron's portfolio">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>
         </a>
+        <button class="icon-btn lb-refresh" id="lb-refresh" type="button" title="Refresh the board" aria-label="Refresh the board">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+        </button>
         <button class="icon-btn intro-toggle" type="button" data-intro-toggle="reaper-intro-off" aria-pressed="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z" fill="currentColor"/><path class="intro-slash" d="M4.5 4.5l15 15"/></svg>
         </button>
@@ -58,10 +61,7 @@
             <p class="kicker la-kicker" id="lb-event" hidden></p>
             <h1>Live event board</h1>
           </div>
-          <div class="lb-status-row">
-            <p class="lb-status" id="lb-status" data-state="idle"><span class="lb-dot"></span><span id="lb-status-text">Connecting…</span></p>
-            <button class="lb-refresh" id="lb-refresh" type="button" title="Refresh now" aria-label="Refresh now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg><span>Refresh</span></button>
-          </div>
+          <p class="lb-status" id="lb-status" data-state="idle"><span class="lb-dot"></span><span id="lb-status-text">Connecting…</span></p>
         </div>
         <label class="lb-find">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
