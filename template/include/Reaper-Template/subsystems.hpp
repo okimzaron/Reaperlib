@@ -1,7 +1,7 @@
 #pragma once
 #include "robot_hardware.hpp"
 
-// Compatibility aliases: existing routes and controls use the same owned objects.
+// [Reaper] Short names for the robot's parts. Compatibility aliases: existing routes and controls use the same owned objects.
 // Change ports/configuration only in robot_hardware.hpp, not here.
 inline ez::Drive& chassis = robot.chassis;
 inline pros::Motor& LiftL = robot.lift_left;

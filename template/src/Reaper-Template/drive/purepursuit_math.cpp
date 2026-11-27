@@ -204,7 +204,7 @@ std::vector<odom> Drive::smooth_path(std::vector<odom> ipath, double weight_smoo
 
   // Constants that don't settle would fling the points off toward infinity, so follow the path as given instead.
   // print_after_unlock, not printf: some callers of this function still run it while holding
-  // drive_mutex (kLockedHelpers, test_locking_rule.cpp treats it as always-potentially-locked), and
+  // drive_mutex (so treat it as always possibly locked), and
   // printf is a blocking call locking rule 2 forbids making while a guard is held. print_after_unlock
   // is correct either way -- it prints at once when nothing is held (see lock.hpp).
   if (!(weight_data + 2.0 * weight_smooth < 2.0)) {

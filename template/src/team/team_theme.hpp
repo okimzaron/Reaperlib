@@ -2,7 +2,7 @@
 #include <cstdint>
 #include "liblvgl/lvgl.h"
 
-// TEAM BRANDING FOR THE BRAIN DASHBOARD -- everything team-specific lives in this folder (src/team/).
+// [Reaper] TEAM BRANDING FOR THE BRAIN DASHBOARD -- everything team-specific lives in this folder (src/team/).
 //
 // This folder ships filled in for 4588G Gambit, as a worked example: this file plus gambit_logo.cpp.
 // To make it yours, replace the name, colors and logo below. Edit the SETTINGS section, then rebuild/upload.

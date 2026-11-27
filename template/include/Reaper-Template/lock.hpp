@@ -51,7 +51,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *     task that blocks lets the daemon run, and the daemon may then delete it while it holds the lock. To print from
  *     inside a guard, call lock.print_after_unlock(...): the text is printed once the outermost guard has released.
  *
- * A host test (test/test_locking_rule.cpp) reads the library source and fails the build if either rule is broken.
+ * Nothing checks these rules automatically in this repo, so keep to them by hand when you change library code.
  *
  * WHAT IT CANNOT DO
  *

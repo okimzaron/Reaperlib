@@ -702,12 +702,12 @@ void Drive::pid_wait() {
     // DRIVE has no odometry to fall back on, so this is the same progress backstop StuckWatch gives odom waits,
     // built around each side's own error instead: neither velocity nor mA catches a sustained disturbance that
     // never reads as "stopped" and never draws over current (a continuous spin, a defender holding the robot,
-    // sensor jitter under contact) -- see WAIT_BEHAVIOR_SPEC.md's JC-1.  A side only counts as "stuck" once IT is
+    // sensor jitter under contact).  A side only counts as "stuck" once IT is
     // still RUNNING and not progressing; a side that already exited cleanly can't drag the wait down.  Whether
     // each side already moved is judged against l_start/r_start -- the motion's own real start, set once in
     // pid_drive_set() -- not against this particular wait call, so a wait chained onto an already-moving motion
-    // (an early pid_wait_until() checkpoint followed by pid_wait() on the same still-running drive, TEAM_CORPUS.md's
-    // ordinary "until then wait" pattern) doesn't pay SingleStuckWatch's startup allowance a second time.
+    // (an early pid_wait_until() checkpoint followed by pid_wait() on the same still-running drive, the ordinary
+    // "until then wait" pattern) doesn't pay SingleStuckWatch's startup allowance a second time.
     SingleStuckWatch left_watch(leftPID, leftPID.error, std::fabs(drive_sensor_left() - l_start) > stuck_step(leftPID, STUCK_STEP_DISTANCE_CAP),
                                 STUCK_STEP_DISTANCE_CAP),
         right_watch(rightPID, rightPID.error, std::fabs(drive_sensor_right() - r_start) > stuck_step(rightPID, STUCK_STEP_DISTANCE_CAP),
@@ -1449,7 +1449,7 @@ void Drive::wait_until_drive(double target) {
           }
           // A clean double window-exit (SMALL_EXIT/BIG_EXIT) only ends this wait_until() without
           // interfered=true when its own target really is the motion's final target -- see
-          // at_final_target's comment and WAIT_BEHAVIOR_SPEC.md's settled-exemption entry. A
+          // at_final_target's comment. A
           // checkpoint short of the final target that the robot stopped short of past this point is
           // a real early exit, not a settle.
           CheckpointEnd end = checkpoint_end_on_window_exit(at_final_target, unreachable,

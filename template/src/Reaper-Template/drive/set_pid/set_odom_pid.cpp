@@ -261,8 +261,8 @@ void Drive::pid_odom_injected_pp_set(std::vector<ez::odom> imovements, bool slew
   rightPID.motion_reset(drive_sensor_right());
 
   // print_after_unlock, not printf: this function holds drive_mutex across the publish and resets
-  // above, and printf is a blocking call locking rule 2 forbids making while a guard is held
-  // (test_locking_rule.cpp) -- print_after_unlock queues the text and emits it once the outermost
+  // above, and printf is a blocking call locking rule 2 (lock.hpp) forbids making while a guard is
+  // held -- print_after_unlock queues the text and emits it once the outermost
   // guard's destructor runs.
   if (print_toggle) drive_mutex.print_after_unlock("Injected ");
   odom_turn_bias_enable(true);
@@ -489,9 +489,9 @@ void Drive::pid_odom_ptp_set(odom imovement, bool slew_on) {
 /////
 void Drive::raw_pid_odom_pp_set(std::vector<odom> imovements, bool slew_on) {
   if (imovements.empty()) {
-    // print_after_unlock, not printf: this function is on kLockedHelpers (test_locking_rule.cpp),
-    // which treats its whole body as running under drive_mutex regardless of where the real guard
-    // below is declared -- print_after_unlock is correct either way (see lock.hpp).
+    // print_after_unlock, not printf: treat this whole function as running under drive_mutex,
+    // wherever the real guard below is declared -- print_after_unlock is correct either way
+    // (see lock.hpp).
     drive_mutex.print_after_unlock("EZ-Template: pid_odom_set was given an empty path\n");
     return;
   }
