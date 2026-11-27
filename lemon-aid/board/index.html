@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live Board · Lemon-Aid</title>
+  <meta name="description" content="Live Lemon-Aid event board: fields, queue, rankings, schedule and results.">
+  <meta name="theme-color" content="#0f0a18">
+  <link rel="icon" href="../favicon.png" type="image/png">
+  <script>try{var t=localStorage.getItem('reaper-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/base.css">
+  <link rel="stylesheet" href="../../reaper.css">
+  <link rel="stylesheet" href="../lemon.css">
+  <link rel="stylesheet" href="board.css">
+</head>
+<body class="page-lemon page-board">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="r-header">
+    <div class="container r-nav">
+      <a class="r-brand" href="../../">
+        <img src="../../assets/img/reaper-logo.webp" alt="">
+        Reaper <small>v1.0 beta</small>
+      </a>
+      <nav class="r-links" id="r-links" aria-label="Reaper">
+        <a href="../../#features">Features</a>
+        <a href="../../docs/">Docs</a>
+        <a href="../" class="is-active nav-lemon"><span class="lemon-dot" aria-hidden="true"></span>Lemon-Aid</a>
+        <a href="../../#team">4588G Gambit</a>
+      </nav>
+      <div class="r-actions">
+        <a class="icon-btn" href="https://zaronworks.online/" title="Back to Za'Ron's portfolio" aria-label="Back to Za'Ron's portfolio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>
+        </a>
+        <button class="icon-btn intro-toggle" type="button" data-intro-toggle="reaper-intro-off" aria-pressed="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z" fill="currentColor"/><path class="intro-slash" d="M4.5 4.5l15 15"/></svg>
+        </button>
+        <button class="icon-btn theme-toggle" type="button" data-theme-toggle aria-label="Toggle light and dark mode">
+          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+        <button class="icon-btn r-menu-btn" type="button" data-toggle="r-links" aria-expanded="false" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="lb-top">
+      <div class="container">
+        <a class="lb-back" href="../">← Lemon-Aid</a>
+        <div class="lb-title">
+          <div>
+            <p class="kicker la-kicker" id="lb-event">Live event board</p>
+            <h1>Live board</h1>
+          </div>
+          <p class="lb-status" id="lb-status" data-state="idle"><span class="lb-dot"></span><span id="lb-status-text">Connecting…</span></p>
+        </div>
+        <label class="lb-find">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="lb-team" type="search" list="lb-team-list" placeholder="Find your team" autocomplete="off" aria-label="Find your team">
+          <datalist id="lb-team-list"></datalist>
+        </label>
+      </div>
+    </section>
+
+    <div class="container lb-body">
+      <div class="lb-empty" id="lb-empty" hidden>
+        <img src="../logo.webp" alt="">
+        <h2>No event running right now</h2>
+        <p>The board goes live when an event starts. Join the Discord to hear about the next one.</p>
+        <a class="r-btn la-btn" href="https://discord.gg/z34DVaY89E" target="_blank" rel="noopener">Join the Discord</a>
+      </div>
+
+      <div id="lb-live" hidden>
+        <section class="lb-block" aria-labelledby="lb-h-fields">
+          <h2 id="lb-h-fields">On the fields</h2>
+          <div class="lb-fields" id="lb-fields"></div>
+          <div class="lb-queue" id="lb-queue"></div>
+        </section>
+
+        <div class="lb-cols">
+          <section class="lb-block" aria-labelledby="lb-h-rank">
+            <h2 id="lb-h-rank">Rankings</h2>
+            <div class="lb-table-wrap">
+              <table class="lb-table lb-rank">
+                <thead><tr><th>#</th><th>Team</th><th title="Wins-Losses-Ties">W-L-T</th><th title="Average points scored">Avg</th><th title="Total points scored">Pts</th></tr></thead>
+                <tbody id="lb-rank"></tbody>
+              </table>
+            </div>
+            <p class="lb-note">Ranked by wins (a tie counts as half), then total points scored.</p>
+          </section>
+
+          <section class="lb-block" aria-labelledby="lb-h-sched">
+            <div class="lb-block-head">
+              <h2 id="lb-h-sched">Schedule &amp; results</h2>
+              <label class="lb-mine" id="lb-mine-wrap" hidden><input type="checkbox" id="lb-mine"> Only my matches</label>
+            </div>
+            <div class="lb-table-wrap">
+              <table class="lb-table lb-sched">
+                <thead><tr><th>Qual</th><th class="t-blue">Blue</th><th class="lb-sc">Score</th><th class="t-red">Red</th></tr></thead>
+                <tbody id="lb-sched"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="r-footer">
+    <div class="container">
+      <p>© <span data-year></span> Lemon-Aid</p>
+      <nav><a href="https://discord.gg/z34DVaY89E" target="_blank" rel="noopener">Discord</a><a href="../">Lemon-Aid</a><a href="../../">Reaper</a><a href="https://zaronworks.online/">Portfolio</a></nav>
+    </div>
+  </footer>
+
+  <script src="../../assets/js/common.js"></script>
+  <script src="../../reaper.js"></script>
+  <script src="board.js"></script>
+</body>
+</html>

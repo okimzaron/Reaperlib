@@ -78,3 +78,9 @@
 .la-steps { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 1000px) { .la-steps { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .la-steps { grid-template-columns: 1fr; } }
+
+.r-btn-ghost svg { width: 18px; height: 18px; }
+.la-soon .r-hero-cta { margin-top: 10px; }
+.la-soon .r-hero-cta .r-btn { margin-top: 0; }
+.la-step-link { display: inline-block; margin-top: 12px; font-weight: 600; font-size: 14.5px; color: var(--lemon-text); }
+.la-step-link:hover { text-decoration: underline; text-underline-offset: 4px; }
