@@ -80,3 +80,12 @@
 @media (max-width: 760px) { .lb-fields { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .lb-table td, .lb-table th { padding: 9px 10px; } .lb-table { font-size: 14px; } }
 .page-board [hidden] { display: none !important; }
+
+/* status + manual refresh */
+.lb-status-row { display: flex; align-items: center; gap: 8px; }
+.lb-refresh { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; color: var(--text); font: inherit; font-size: 13px; cursor: pointer; transition: border-color .2s, color .2s; }
+.lb-refresh:hover { border-color: var(--lemon-line); color: var(--lemon-text); }
+.lb-refresh svg { width: 15px; height: 15px; }
+.lb-refresh.is-spinning svg { animation: lb-spin .7s linear; }
+@keyframes lb-spin { to { transform: rotate(360deg); } }
+@media (max-width: 480px) { .lb-refresh span { display: none; } .lb-refresh { padding: 7px; } }

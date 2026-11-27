@@ -55,10 +55,13 @@
         <a class="lb-back" href="../">← Lemon-Aid</a>
         <div class="lb-title">
           <div>
-            <p class="kicker la-kicker" id="lb-event">Live event board</p>
-            <h1>Live board</h1>
+            <p class="kicker la-kicker" id="lb-event" hidden></p>
+            <h1>Live event board</h1>
           </div>
-          <p class="lb-status" id="lb-status" data-state="idle"><span class="lb-dot"></span><span id="lb-status-text">Connecting…</span></p>
+          <div class="lb-status-row">
+            <p class="lb-status" id="lb-status" data-state="idle"><span class="lb-dot"></span><span id="lb-status-text">Connecting…</span></p>
+            <button class="lb-refresh" id="lb-refresh" type="button" title="Refresh now" aria-label="Refresh now"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg><span>Refresh</span></button>
+          </div>
         </div>
         <label class="lb-find">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -77,8 +80,7 @@
       </div>
 
       <div id="lb-live" hidden>
-        <section class="lb-block" aria-labelledby="lb-h-fields">
-          <h2 id="lb-h-fields">On the fields</h2>
+        <section class="lb-block" aria-label="On the fields">
           <div class="lb-fields" id="lb-fields"></div>
           <div class="lb-queue" id="lb-queue"></div>
         </section>

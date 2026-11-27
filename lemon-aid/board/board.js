@@ -17,7 +17,7 @@
   try { team = new URLSearchParams(location.search).get('team') || localStorage.getItem(TEAM_KEY) || ''; } catch (e) {}
   $('lb-team').value = team;
 
-  if (!src) { $('lb-empty').hidden = false; $('lb-team').parentNode.hidden = true; setStatus('idle', 'No event running'); return; }
+  if (!src) { $('lb-empty').hidden = false; $('lb-refresh').hidden = true; $('lb-team').parentNode.hidden = true; setStatus('idle', 'No event running'); return; }
 
   // ---------------------------------------------------------------- reading the Sheet
   function norm(s) { return String(s || '').trim().toLowerCase(); }
@@ -104,7 +104,8 @@
     $('lb-empty').hidden = true;
     $('lb-team').parentNode.hidden = false;
     $('lb-live').hidden = false;
-    if (d.event) $('lb-event').textContent = d.event;
+    $('lb-event').textContent = d.event;
+    $('lb-event').hidden = !d.event;
 
     var byQ = {};
     d.matches.forEach(function (m) { byQ[m.q] = m; });
@@ -181,6 +182,12 @@
     draw();
   });
   $('lb-mine').addEventListener('change', draw);
+  $('lb-refresh').addEventListener('click', function () {
+    var btn = this;
+    btn.classList.add('is-spinning');
+    setTimeout(function () { btn.classList.remove('is-spinning'); }, 700);
+    load();
+  });
 
   load();
 })();
